@@ -160,13 +160,24 @@ jobs:
           systemctl stop fashion-flask.service || echo "Flask service not running"
           systemctl stop fashion-streamlit.service || echo "Streamlit service not running"
 
-          # Check for processes using our ports (but don't kill them aggressively)
+          # Check for processes using our ports and handle conflicts
           echo "Checking for processes on ports 5002 and 8501..."
           netstat -tulpn | grep :5002 || echo "Port 5002 is free"
           netstat -tulpn | grep :8501 || echo "Port 8501 is free"
+          
+          # If there's a process on port 5002, kill it safely
+          if netstat -tulpn | grep :5002 >/dev/null; then
+            echo "Port 5002 is in use, finding and stopping the process..."
+            PID=$(netstat -tulpn | grep :5002 | awk '{print $7}' | cut -d'/' -f1)
+            if [ ! -z "$PID" ] && [ "$PID" != "-" ]; then
+              echo "Killing process $PID on port 5002..."
+              kill $PID || echo "Process already stopped"
+              sleep 2
+            fi
+          fi
 
           # Wait a moment for systemd to stop services
-          sleep 2
+          sleep 3
           
           # Create systemd services
           echo "Creating systemd services..."
@@ -217,6 +228,8 @@ jobs:
           systemctl start fashion-flask.service || {
             echo "ERROR: Failed to start Flask service"
             systemctl status fashion-flask.service --no-pager
+            echo "Checking Flask service logs for errors..."
+            journalctl -u fashion-flask.service --no-pager -n 20
             echo "Continuing with debug script..."
           }
           echo "Starting Streamlit service..."

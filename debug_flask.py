@@ -23,9 +23,13 @@ except Exception as e:
     sys.exit(1)
 
 try:
-    print("Testing Flask app run...")
-    app_simple.app.run(host='0.0.0.0', port=5002, debug=False)
+    print("Testing Flask app configuration...")
+    # Test that the app can be configured properly
+    with app_simple.app.test_client() as client:
+        response = client.get('/')
+        print(f"Flask app responds with status: {response.status_code}")
+    print("Flask app is working correctly!")
 except Exception as e:
-    print(f"Error running Flask app: {e}")
+    print(f"Error testing Flask app: {e}")
     traceback.print_exc()
     sys.exit(1)

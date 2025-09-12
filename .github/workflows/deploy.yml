@@ -108,6 +108,21 @@ jobs:
                 cd fashion-recommender
                 git clone https://github.com/ashmhmd25321/fashion_recommender.git .
               }
+              
+              # Check if origin remote exists
+              if ! git remote get-url origin >/dev/null 2>&1; then
+                echo "No origin remote found. Adding it..."
+                git remote add origin https://github.com/ashmhmd25321/fashion_recommender.git
+              fi
+              
+              # Check if we're on the right branch
+              current_branch=$(git branch --show-current 2>/dev/null || echo "unknown")
+              if [ "$current_branch" != "main" ]; then
+                echo "Switching to main branch..."
+                git fetch origin
+                git checkout -b main origin/main || git checkout main
+              fi
+              
               echo "Pulling latest changes..."
               git pull origin main || {
                 echo "ERROR: Failed to pull changes"

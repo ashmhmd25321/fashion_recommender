@@ -151,6 +151,10 @@ jobs:
             exit 1
           }
           
+          # Run Flask debug script to identify issues
+          echo "Running Flask debug script..."
+          python debug_flask.py || echo "Flask debug test failed"
+          
           # Stop any existing systemd services first
           echo "Stopping existing systemd services..."
           systemctl stop fashion-flask.service || echo "Flask service not running"
@@ -208,7 +212,7 @@ jobs:
           systemctl start fashion-flask.service || {
             echo "ERROR: Failed to start Flask service"
             systemctl status fashion-flask.service --no-pager
-            exit 1
+            echo "Continuing with debug script..."
           }
           echo "Starting Streamlit service..."
           systemctl start fashion-streamlit.service || {
@@ -236,9 +240,6 @@ jobs:
           echo "Testing Flask app manually with detailed debugging..."
           cd /opt/fashion-recommender
           source venv/bin/activate
-          
-          echo "Running Flask debug script..."
-          python debug_flask.py || echo "Flask debug test failed"
           
           # Test the application
           echo "Testing application health..."

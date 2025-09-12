@@ -24,7 +24,7 @@ except Exception as e:
 
 try:
     print("Testing Flask app run...")
-    app_simple.app.run(host='0.0.0.0', port=5001, debug=False)
+    app_simple.app.run(host='0.0.0.0', port=5002, debug=False)
 except Exception as e:
     print(f"Error running Flask app: {e}")
     traceback.print_exc()

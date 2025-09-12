@@ -1,0 +1,936 @@
+{% extends "base.html" %}
+
+{% block title %}Browse Items - Fashion Recommender{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(45deg, #6a11cb, #2575fc);
+        --hover-gradient: linear-gradient(45deg, #7b21dc, #3686fd);
+        --card-bg: #232323;
+        --card-bg-hover: #2a2a2a;
+        --text-primary: #fff;
+        --text-secondary: rgba(255, 255, 255, 0.7);
+        --text-muted: rgba(255, 255, 255, 0.5);
+        --border-color: rgba(255, 255, 255, 0.05);
+        --border-hover: rgba(106, 17, 203, 0.3);
+        --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.1);
+        --shadow-md: 0 12px 25px rgba(0, 0, 0, 0.2);
+        --shadow-lg: 0 15px 35px rgba(0, 0, 0, 0.25);
+        --accent-glow: 0 0 15px rgba(106, 17, 203, 0.5);
+    }
+    
+    /* Enhanced Page Header */
+    .page-header {
+        background: linear-gradient(135deg, #232323 0%, #1a1a1a 100%);
+        border-radius: 16px;
+        padding: 3.5rem;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .page-header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 40%;
+        height: 100%;
+        background-image: url('https://images.unsplash.com/photo-1523381294911-8d3cead13475?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80');
+        background-size: cover;
+        background-position: center;
+        opacity: 0.2;
+        mask-image: linear-gradient(to left, rgba(0,0,0,1), rgba(0,0,0,0));
+        -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1), rgba(0,0,0,0));
+        filter: saturate(1.2);
+    }
+    
+    .page-header::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 50%;
+        background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);
+        z-index: 1;
+    }
+    
+    .page-header-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .page-header h1 {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: var(--accent-glow);
+        letter-spacing: -0.5px;
+    }
+    
+    .page-header p {
+        color: var(--text-secondary);
+        font-size: 1.2rem;
+        max-width: 60%;
+        line-height: 1.6;
+    }
+
+    /* Clean enhanced search styles */
+    .search-container {
+        background: linear-gradient(145deg, #252525, #1e1e1e);
+        border-radius: 20px;
+        padding: 2.5rem;
+        margin-bottom: 3rem;
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.03);
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+    }
+    
+    .search-container::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 200%;
+        background: linear-gradient(45deg, #6a11cb, #2575fc);
+        opacity: 0.05;
+        transform: rotate(15deg);
+        z-index: 0;
+    }
+    
+    .search-form {
+        position: relative;
+        z-index: 2;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+    
+    .search-input-group {
+        position: relative;
+        border-radius: 50px;
+        background: rgba(0,0,0,0.2);
+        padding: 0.5rem;
+        display: flex;
+        box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .search-input-group:focus-within {
+        box-shadow: 0 0 0 2px rgba(106, 17, 203, 0.4), 0 0 15px rgba(106, 17, 203, 0.5);
+        transform: translateY(-2px);
+    }
+    
+    .search-input {
+        background-color: transparent;
+        border: none;
+        color: #ffffff;
+        padding: 0.9rem 1.5rem;
+        font-size: 1.1rem;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .search-input:focus {
+        outline: none;
+        box-shadow: none;
+    }
+    
+    .search-input::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+        font-weight: 300;
+    }
+    
+    .search-btn {
+        background: linear-gradient(45deg, #6a11cb, #2575fc);
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        color: #ffffff;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+    }
+    
+    .search-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2), 0 0 15px rgba(106, 17, 203, 0.5);
+        background: linear-gradient(45deg, #7b21dc, #3686fd);
+    }
+    
+    .search-btn i {
+        font-size: 1.1rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .search-btn:hover i {
+        transform: scale(1.2) rotate(-10deg);
+    }
+    
+    .search-tag {
+        display: inline-block;
+        background: rgba(106, 17, 203, 0.15);
+        color: rgba(255, 255, 255, 0.9);
+        border-radius: 50px;
+        padding: 0.5rem 1.2rem;
+        font-size: 0.95rem;
+        border: 1px solid rgba(106, 17, 203, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .search-tag-close {
+        color: rgba(255, 255, 255, 0.6);
+        margin-left: 0.75rem;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+    
+    .search-tag-close:hover {
+        color: white;
+        transform: scale(1.2);
+    }
+    
+    /* Fix for overlapping items */
+    .item-card {
+        background-color: var(--card-bg);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 0;
+        border: 1px solid var(--border-color);
+    }
+    
+    .item-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-md);
+        background-color: var(--card-bg-hover);
+        border-color: var(--border-hover);
+    }
+    
+    .item-img-container {
+        position: relative;
+        width: 100%;
+        padding-top: 100%; /* 1:1 Aspect Ratio */
+        overflow: hidden;
+    }
+    
+    .item-img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .item-card:hover .item-img {
+        transform: scale(1.05);
+    }
+    
+    .item-img-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to top, rgba(0,0,0,0.8), transparent 50%);
+        opacity: 0.7;
+        transition: opacity 0.3s ease;
+    }
+    
+    .item-card:hover .item-img-overlay {
+        opacity: 0.5;
+    }
+    
+    .sustainability-score {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #1a1a1a;
+        color: white;
+        font-weight: bold;
+        border-radius: 50%;
+        z-index: 2;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        border: 2px solid;
+    }
+    
+    .score-1, .score-2 {
+        border-color: #ff4d4d;
+    }
+    
+    .score-3 {
+        border-color: #ffad33;
+    }
+    
+    .score-4, .score-5 {
+        border-color: #66cc66;
+    }
+    
+    .item-content {
+        padding: 1.5rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .item-title {
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        font-size: 1.1rem;
+        line-height: 1.3;
+    }
+    
+    .rating {
+        margin-bottom: 0.75rem;
+        color: #ffad33;
+    }
+    
+    .item-meta {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+    
+    .separator {
+        margin: 0 0.5rem;
+    }
+    
+    .item-btn {
+        background-color: rgba(106, 17, 203, 0.1);
+        color: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(106, 17, 203, 0.3);
+        border-radius: 8px;
+        padding: 0.6rem 1rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-align: center;
+        margin-top: auto;
+    }
+    
+    .item-btn:hover {
+        background-color: rgba(106, 17, 203, 0.2);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 0;
+        color: var(--text-secondary);
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+        color: rgba(106, 17, 203, 0.3);
+    }
+    
+    .empty-state h4 {
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+    }
+    
+    .empty-state p {
+        max-width: 500px;
+        margin: 0 auto 2rem;
+        color: var(--text-muted);
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .search-form {
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+    
+    .search-btn:focus {
+        animation: pulse 1.5s infinite;
+    }
+    
+    /* Row spacing fix */
+    .row > [class*="col-"] {
+        margin-bottom: 30px;
+    }
+    
+    /* Enhanced responsive adjustments */
+    @media (max-width: 768px) {
+        .search-container {
+            padding: 2rem 1.5rem;
+        }
+        
+        .search-input-group {
+            flex-direction: column;
+            background: transparent;
+            box-shadow: none;
+            padding: 0;
+        }
+        
+        .search-input {
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            width: 100%;
+            padding: 0.8rem 1rem;
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
+        }
+        
+        .search-btn {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .page-header h1 {
+            font-size: 2rem;
+        }
+        
+        .page-header p {
+            max-width: 100%;
+            font-size: 1rem;
+        }
+        
+        .page-header {
+            padding: 2.5rem 1.5rem;
+        }
+        
+        .item-card {
+            margin-bottom: 1.5rem;
+        }
+        
+        .item-img-container {
+            padding-top: 80%;
+        }
+        
+        .item-content {
+            padding: 1.2rem;
+        }
+        
+        .item-title {
+            font-size: 1rem;
+        }
+        
+        .sustainability-score {
+            width: 35px;
+            height: 35px;
+            font-size: 0.9rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .page-header {
+            padding: 2rem 1rem;
+        }
+        
+        .page-header h1 {
+            font-size: 1.6rem;
+        }
+        
+        .page-header p {
+            font-size: 0.9rem;
+        }
+        
+        .search-container {
+            padding: 1.5rem 1rem;
+        }
+        
+        .search-input {
+            padding: 0.7rem 0.8rem;
+            font-size: 1rem;
+        }
+        
+        .search-btn {
+            padding: 0.8rem 1.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .item-img-container {
+            padding-top: 75%;
+        }
+        
+        .item-content {
+            padding: 1rem;
+        }
+        
+        .item-title {
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .item-meta {
+            font-size: 0.8rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .item-btn {
+            padding: 0.5rem 0.8rem;
+            font-size: 0.85rem;
+        }
+        
+        .sustainability-score {
+            width: 30px;
+            height: 30px;
+            font-size: 0.8rem;
+        }
+        
+        .empty-state {
+            padding: 3rem 1rem;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+        }
+        
+        .empty-state h4 {
+            font-size: 1.3rem;
+        }
+        
+        .empty-state p {
+            font-size: 0.9rem;
+        }
+    }
+    
+    @media (max-width: 400px) {
+        .page-header h1 {
+            font-size: 1.4rem;
+        }
+        
+        .item-img-container {
+            padding-top: 70%;
+        }
+        
+        .item-content {
+            padding: 0.8rem;
+        }
+        
+        .item-title {
+            font-size: 0.9rem;
+        }
+        
+        .sustainability-score {
+            width: 28px;
+            height: 28px;
+            font-size: 0.75rem;
+        }
+    }
+    
+    /* Landscape orientation for mobile */
+    @media (max-height: 500px) and (orientation: landscape) {
+        .page-header {
+            padding: 1rem;
+        }
+        
+        .page-header h1 {
+            font-size: 1.4rem;
+        }
+        
+        .page-header p {
+            font-size: 0.85rem;
+        }
+        
+        .search-container {
+            padding: 1rem;
+        }
+        
+        .item-img-container {
+            padding-top: 60%;
+        }
+    }
+    
+    /* Grid adjustments for different screen sizes */
+    @media (min-width: 576px) and (max-width: 767px) {
+        .col-sm-6 {
+            margin-bottom: 1.5rem;
+        }
+    }
+    
+    @media (min-width: 768px) and (max-width: 991px) {
+        .col-md-4 {
+            margin-bottom: 1.5rem;
+        }
+    }
+    
+    @media (min-width: 992px) {
+        .col-lg-3 {
+            margin-bottom: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+    <h1>Discover Fashion Items</h1>
+    <p>Explore our curated collection of clothing items shared by our community. Find sustainable fashion choices and get inspired.</p>
+    </div>
+</div>
+
+<div class="search-container">
+    <form action="{{ url_for('items') }}" method="GET" class="search-form" id="searchForm">
+        <div class="search-input-group">
+            <input name="query" id="searchInput" class="search-input" type="search" placeholder="Search by name, style, or material..." 
+                   aria-label="Search" value="{{ request.args.get('query', '') }}">
+                <button class="search-btn" type="submit">
+                <i class="fas fa-search"></i> Find Items
+                </button>
+        </div>
+        {% if request.args.get('query') %}
+        <div class="mt-3 text-center">
+            <span class="search-tag">
+                <i class="fas fa-search-plus me-1"></i> 
+                Showing results for: "<span id="searchTermDisplay">{{ request.args.get('query') }}</span>"
+                <a href="{{ url_for('items') }}" class="search-tag-close"><i class="fas fa-times"></i></a>
+            </span>
+    </div>
+        {% endif %}
+    </form>
+</div>
+
+<div class="row" id="itemsContainer">
+    {% if items.items %}
+        {% for item in items.items %}
+        <div class="col-md-4 col-lg-3 mb-4 item-column" data-item-name="{{ item.name|lower }}">
+            <div class="item-card">
+                <div class="item-img-container">
+                    <img src="{{ url_for('static', filename=item.image_path|normalize_path) }}" class="item-img" alt="{{ item.name }}">
+                    <div class="item-img-overlay"></div>
+                    <div class="sustainability-score score-{{ item.sustainability_score|int }}">
+                        {{ item.sustainability_score }}
+                    </div>
+                </div>
+                <div class="item-content">
+                    <h5 class="item-title">{{ item.name }}</h5>
+                    <div class="rating">
+                        {% set score = item.get_vote_score()|int %}
+                        {% for i in range(5) %}
+                            {% if i < score %}
+                            <i class="fas fa-star"></i>
+                            {% else %}
+                            <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                        <span class="text-muted ms-2">({{ item.votes.count() }})</span>
+                    </div>
+                    <div class="item-meta">
+                        <i class="fas fa-user-circle"></i> {{ item.owner.username }}
+                        <span class="separator">•</span>
+                        <i class="far fa-calendar-alt"></i> {{ item.created_at.strftime('%d %b %Y') }}
+                    </div>
+                    <a href="{{ url_for('item_details', item_id=item.id) }}" class="btn item-btn">
+                        <i class="fas fa-eye"></i> View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12" id="emptyState">
+            <div class="empty-state">
+                <i class="fas fa-tshirt"></i>
+                {% if request.args.get('query') %}
+                <h4>No results found</h4>
+                <p>We couldn't find any items matching "{{ request.args.get('query') }}". Try a different search term or browse all items.</p>
+                <a href="{{ url_for('items') }}" class="btn search-btn">
+                    <i class="fas fa-arrow-left me-2"></i>View All Items
+                </a>
+                {% else %}
+                <h4>No items available yet</h4>
+                <p>Be the first to upload a clothing item and start building our sustainable fashion community!</p>
+                <a href="{{ url_for('recommend') }}" class="btn search-btn">
+                    <i class="fas fa-plus me-2"></i>Upload First Item
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<div class="col-12 d-none" id="noResultsTemplate">
+    <div class="empty-state">
+        <i class="fas fa-search"></i>
+        <h4>No matching items found</h4>
+        <p>We couldn't find any items matching your search. Try different keywords or browse all items.</p>
+        <button class="btn search-btn" id="clearSearchBtn">
+            <i class="fas fa-times me-2"></i>Clear Search
+        </button>
+    </div>
+</div>
+
+{% if items.pages > 1 %}
+<nav aria-label="Page navigation" class="mt-5">
+    <ul class="pagination justify-content-center">
+        {% if items.has_prev %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('items', page=items.prev_num, query=request.args.get('query', ''), sort=request.args.get('sort', ''), filter=request.args.get('filter', '')) }}" aria-label="Previous">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <a class="page-link" href="#" aria-label="Previous">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+        </li>
+        {% endif %}
+        
+        {% for page_num in items.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+            {% if page_num %}
+                {% if page_num == items.page %}
+                <li class="page-item active">
+                    <a class="page-link" href="{{ url_for('items', page=page_num, query=request.args.get('query', ''), sort=request.args.get('sort', ''), filter=request.args.get('filter', '')) }}">{{ page_num }}</a>
+                </li>
+                {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('items', page=page_num, query=request.args.get('query', ''), sort=request.args.get('sort', ''), filter=request.args.get('filter', '')) }}">{{ page_num }}</a>
+                </li>
+                {% endif %}
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">...</a>
+                </li>
+            {% endif %}
+        {% endfor %}
+        
+        {% if items.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('items', page=items.next_num, query=request.args.get('query', ''), sort=request.args.get('sort', ''), filter=request.args.get('filter', '')) }}" aria-label="Next">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <a class="page-link" href="#" aria-label="Next">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+<script>
+    // Real-time search functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const itemColumns = document.querySelectorAll('.item-column');
+        const itemsContainer = document.getElementById('itemsContainer');
+        const noResultsTemplate = document.getElementById('noResultsTemplate');
+        const originalEmptyState = document.getElementById('emptyState');
+        const searchTermDisplay = document.getElementById('searchTermDisplay');
+        const clearSearchBtn = document.getElementById('clearSearchBtn');
+        
+        // Function to perform the filtering
+        function filterItems(searchTerm) {
+            searchTerm = searchTerm.toLowerCase().trim();
+            let matchCount = 0;
+            
+            // Update the search term display if it exists
+            if (searchTermDisplay) {
+                searchTermDisplay.textContent = searchTerm;
+            }
+            
+            itemColumns.forEach(column => {
+                const itemName = column.dataset.itemName;
+                
+                if (itemName.includes(searchTerm) || searchTerm === '') {
+                    column.style.display = '';
+                    matchCount++;
+                    
+                    // Add highlight to matched text
+                    const titleElement = column.querySelector('.item-title');
+                    if (searchTerm !== '' && titleElement) {
+                        const itemTitle = titleElement.textContent;
+                        const highlightedText = itemTitle.replace(
+                            new RegExp(searchTerm, 'gi'),
+                            match => `<span style="background-color: rgba(106, 17, 203, 0.2);">${match}</span>`
+                        );
+                        titleElement.innerHTML = highlightedText;
+                    } else if (titleElement) {
+                        // Reset to original text if search is cleared
+                        titleElement.textContent = itemName; // This might need adjustment if item.name is formatted
+                    }
+                } else {
+                    column.style.display = 'none';
+                }
+            });
+            
+            // Show no results message if needed
+            if (matchCount === 0 && searchTerm !== '') {
+                // Check if we already have the original empty state
+                if (originalEmptyState) {
+                    originalEmptyState.style.display = 'none';
+                }
+                
+                // Check if we need to add the no results template
+                if (!document.querySelector('#noResultsInDom')) {
+                    const noResultsClone = noResultsTemplate.cloneNode(true);
+                    noResultsClone.classList.remove('d-none');
+                    noResultsClone.id = 'noResultsInDom';
+                    itemsContainer.appendChild(noResultsClone);
+                }
+            } else {
+                // Remove the no results message if it exists
+                const noResultsInDom = document.getElementById('noResultsInDom');
+                if (noResultsInDom) {
+                    noResultsInDom.remove();
+                }
+                
+                // Show the original empty state if needed
+                if (originalEmptyState && matchCount === 0) {
+                    originalEmptyState.style.display = '';
+                }
+            }
+            
+            // Update URL with search term without reloading the page
+            const url = new URL(window.location);
+            if (searchTerm) {
+                url.searchParams.set('query', searchTerm);
+            } else {
+                url.searchParams.delete('query');
+            }
+            window.history.replaceState({}, '', url);
+        }
+        
+        // Listen for input changes
+        if (searchInput) {
+            searchInput.addEventListener('input', function(e) {
+                filterItems(this.value);
+            });
+            
+            // Focus the search input with delay for better animation
+            setTimeout(() => {
+                searchInput.focus();
+                // If there's a query, select the text for easy editing
+                if (searchInput.value.length > 0) {
+                    searchInput.setSelectionRange(0, searchInput.value.length);
+                    // Also trigger filtering to highlight matches
+                    filterItems(searchInput.value);
+                }
+            }, 300);
+        }
+        
+        // Clear search button
+        if (clearSearchBtn) {
+            clearSearchBtn.addEventListener('click', function() {
+                if (searchInput) {
+                    searchInput.value = '';
+                    filterItems('');
+                    searchInput.focus();
+                }
+            });
+        }
+        
+        // Handle the form submission to prevent page reload
+        const searchForm = document.getElementById('searchForm');
+        if (searchForm) {
+            searchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                filterItems(searchInput.value);
+            });
+        }
+    });
+    
+    // Add a subtle particle effect to the search container
+    const searchContainer = document.querySelector('.search-container');
+    if (searchContainer) {
+        // Create particle container
+        const particleContainer = document.createElement('div');
+        particleContainer.className = 'particle-container';
+        particleContainer.style.position = 'absolute';
+        particleContainer.style.top = '0';
+        particleContainer.style.left = '0';
+        particleContainer.style.width = '100%';
+        particleContainer.style.height = '100%';
+        particleContainer.style.overflow = 'hidden';
+        particleContainer.style.zIndex = '1';
+        searchContainer.insertBefore(particleContainer, searchContainer.firstChild);
+        
+        // Create particles
+        for (let i = 0; i < 15; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'search-particle';
+            particle.style.position = 'absolute';
+            particle.style.backgroundColor = 'rgba(255,255,255,0.05)';
+            particle.style.borderRadius = '50%';
+            particle.style.pointerEvents = 'none';
+            
+            // Random size
+            const size = Math.random() * 8 + 2;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            
+            // Random position
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.top = `${Math.random() * 100}%`;
+            
+            // Animation
+            particle.style.animation = `floatParticle ${Math.random() * 10 + 10}s linear infinite`;
+            particle.style.opacity = Math.random() * 0.5;
+            
+            particleContainer.appendChild(particle);
+        }
+        
+        // Add keyframes for the animation
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = `
+            @keyframes floatParticle {
+                0% {
+                    transform: translate(0, 0);
+                }
+                25% {
+                    transform: translate(${Math.random() * 40 - 20}px, ${Math.random() * 40 - 20}px);
+                }
+                50% {
+                    transform: translate(${Math.random() * 40 - 20}px, ${Math.random() * 40 - 20}px);
+                }
+                75% {
+                    transform: translate(${Math.random() * 40 - 20}px, ${Math.random() * 40 - 20}px);
+                }
+                100% {
+                    transform: translate(0, 0);
+                }
+            }
+        `;
+        document.head.appendChild(styleSheet);
+    }
+</script>
+{% endblock %} 

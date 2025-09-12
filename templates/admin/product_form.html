@@ -1,0 +1,650 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if item %}Edit Product - {{ item.name }}{% else %}Add New Product{% endif %} - Fashion Recommender
+{% endblock %}
+
+{% block extra_css %}
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<style>
+    :root {
+        --dark-bg: #121212;
+        --dark-surface: #1e1e1e;
+        --dark-surface-2: #252525;
+        --dark-surface-3: #2d2d2d;
+        --dark-border: #333333;
+        --dark-text-primary: rgba(255, 255, 255, 0.87);
+        --dark-text-secondary: rgba(255, 255, 255, 0.6);
+        --dark-text-disabled: rgba(255, 255, 255, 0.38);
+        
+        --primary-color: #6a11cb;
+        --primary-light: #8d4bdd;
+        --primary-gradient: linear-gradient(45deg, #6a11cb, #2575fc);
+        --success-gradient: linear-gradient(45deg, #28a745, #20c997);
+        --info-gradient: linear-gradient(45deg, #17a2b8, #00d2ff);
+        --warning-gradient: linear-gradient(45deg, #ffc107, #ff9900);
+        --danger-gradient: linear-gradient(45deg, #dc3545, #ff6373);
+        
+        --card-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        --card-hover-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+        --transition: all 0.3s ease;
+    }
+    
+    body {
+        background-color: var(--dark-bg);
+        color: var(--dark-text-primary);
+        background-image: 
+            radial-gradient(circle at 25% 25%, rgba(106, 17, 203, 0.05) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(37, 117, 252, 0.05) 0%, transparent 50%);
+        background-attachment: fixed;
+    }
+    
+    /* Page Header */
+    .page-header {
+        position: relative;
+        padding: 2.5rem 0;
+        margin-bottom: 2rem;
+        overflow: hidden;
+        border-radius: 16px;
+        background: linear-gradient(145deg, #232323, #1e1e1e);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: var(--card-shadow);
+    }
+    
+    .page-header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 300px;
+        height: 100%;
+        background-image: url('https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80');
+        background-size: cover;
+        background-position: center;
+        opacity: 0.1;
+        mask-image: linear-gradient(to left, rgba(0,0,0,1), rgba(0,0,0,0));
+        -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1), rgba(0,0,0,0));
+    }
+    
+    .page-header-content {
+        position: relative;
+        z-index: 1;
+        padding: 0 2rem;
+    }
+    
+    .page-title {
+        margin: 0;
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: inline-block;
+    }
+    
+    .page-subtitle {
+        color: var(--dark-text-secondary);
+        margin-top: 0.5rem;
+        font-size: 1.1rem;
+    }
+    
+    /* Cards */
+    .card {
+        background-color: var(--dark-surface);
+        border-radius: 16px;
+        border: 1px solid var(--dark-border);
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        margin-bottom: 2rem;
+        transition: var(--transition);
+    }
+    
+    .card:hover {
+        box-shadow: var(--card-hover-shadow);
+        transform: translateY(-5px);
+    }
+    
+    .card-header {
+        background-color: var(--dark-surface-2);
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--dark-border);
+    }
+    
+    .card-header h5 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--dark-text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .card-header h5 i {
+        color: var(--primary-light);
+    }
+    
+    .card-body {
+        padding: 1.75rem 1.5rem;
+    }
+    
+    /* Form Elements */
+    .form-label {
+        color: var(--dark-text-primary);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control, .form-select {
+        background-color: var(--dark-surface-3);
+        border: 1px solid var(--dark-border);
+        color: var(--dark-text-primary);
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        transition: var(--transition);
+    }
+    
+    .form-control:focus, .form-select:focus {
+        background-color: var(--dark-surface-3);
+        border-color: var(--primary-light);
+        color: var(--dark-text-primary);
+        box-shadow: 0 0 0 0.25rem rgba(106, 17, 203, 0.15);
+    }
+    
+    .form-text {
+        color: var(--dark-text-secondary);
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+    
+    textarea.form-control {
+        min-height: 120px;
+    }
+    
+    /* File Upload */
+    .file-upload-container {
+        background-color: var(--dark-surface-2);
+        border: 2px dashed var(--dark-border);
+        border-radius: 8px;
+        padding: 2rem;
+        text-align: center;
+        transition: var(--transition);
+        cursor: pointer;
+        margin-bottom: 1.5rem;
+    }
+    
+    .file-upload-container:hover {
+        border-color: var(--primary-light);
+        background-color: rgba(106, 17, 203, 0.05);
+    }
+    
+    .file-upload-icon {
+        font-size: 2.5rem;
+        color: var(--primary-light);
+        margin-bottom: 1rem;
+    }
+    
+    .file-upload-text {
+        color: var(--dark-text-secondary);
+        margin-bottom: 0.5rem;
+    }
+    
+    .file-upload-btn {
+        background: var(--dark-surface-3);
+        color: var(--dark-text-primary);
+        border: 1px solid var(--dark-border);
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        display: inline-block;
+        transition: var(--transition);
+        font-size: 0.875rem;
+        margin-top: 1rem;
+    }
+    
+    .file-upload-btn:hover {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .file-input {
+        position: absolute;
+        width: 0;
+        height: 0;
+        opacity: 0;
+    }
+    
+    /* Image Preview */
+    .image-preview-container {
+        position: relative;
+        overflow: hidden;
+        border-radius: 12px;
+        transition: var(--transition);
+        border: 1px solid var(--dark-border);
+        margin-top: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .image-preview-container::after {
+        content: 'NEW IMAGE';
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: var(--info-gradient);
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: var(--transition);
+    }
+    
+    .image-preview-container.show::after {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    .image-preview {
+        width: 100%;
+        height: 200px;
+        object-fit: contain;
+        display: block;
+    }
+    
+    /* Product Details */
+    dl.row dt {
+        color: var(--dark-text-secondary);
+        font-weight: 500;
+    }
+    
+    dl.row dd {
+        color: var(--dark-text-primary);
+        font-weight: 600;
+    }
+    
+    /* Current Image */
+    .current-image-container {
+        position: relative;
+        overflow: hidden;
+        border-radius: 12px;
+        transition: var(--transition);
+        margin-bottom: 1.5rem;
+    }
+    
+    .current-image {
+        width: 100%;
+        height: 250px;
+        object-fit: contain;
+        display: block;
+        transition: var(--transition);
+    }
+    
+    .current-image-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 50%);
+        opacity: 0;
+        transition: var(--transition);
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding-bottom: 1rem;
+    }
+    
+    .current-image-container:hover .current-image-overlay {
+        opacity: 1;
+    }
+    
+    .current-image-container:hover .current-image {
+        transform: scale(1.05);
+    }
+    
+    /* Badges */
+    .badge {
+        padding: 0.5rem 0.75rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+    
+    .badge-sustainability {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .badge-sustainability i {
+        font-size: 0.75rem;
+    }
+    
+    /* Buttons */
+    .btn {
+        padding: 0.625rem 1.25rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: var(--transition);
+    }
+    
+    .btn-primary {
+        background: var(--primary-gradient);
+        border: none;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        box-shadow: 0 5px 15px rgba(106, 17, 203, 0.3);
+        transform: translateY(-2px);
+    }
+    
+    .btn-outline-secondary {
+        background-color: var(--dark-surface-3);
+        color: var(--dark-text-primary);
+        border: 1px solid var(--dark-border);
+    }
+    
+    .btn-outline-secondary:hover {
+        background-color: var(--dark-surface-2);
+        color: white;
+        border-color: var(--dark-border);
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(106, 17, 203, 0.4);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(106, 17, 203, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(106, 17, 203, 0);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Page Header -->
+    <div class="page-header mb-4" data-aos="fade-up">
+        <div class="page-header-content">
+            <h1 class="page-title">
+                <i class="fas {% if item %}fa-edit{% else %}fa-plus-circle{% endif %} me-3"></i>
+                {% if item %}Edit Product{% else %}Add New Product{% endif %}
+            </h1>
+            <p class="page-subtitle">
+                {% if item %}Update the details of your product{% else %}Create a new product in your inventory{% endif %}
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8" data-aos="fade-up" data-aos-delay="100">
+            <div class="card">
+                <div class="card-header">
+                    <h5>
+                        <i class="fas fa-box-open me-2"></i>
+                        Product Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" id="productForm">
+                        <div class="mb-4" data-aos="fade-up" data-aos-delay="150">
+                            <label for="item_name" class="form-label">
+                                <i class="fas fa-tag me-2"></i>Product Name
+                            </label>
+                            <input type="text" class="form-control" id="item_name" name="item_name" 
+                                value="{{ item.name if item else '' }}" required>
+                        </div>
+                        
+                        <div class="mb-4" data-aos="fade-up" data-aos-delay="200">
+                            <label for="item_description" class="form-label">
+                                <i class="fas fa-align-left me-2"></i>Description
+                            </label>
+                            <textarea class="form-control" id="item_description" name="item_description" 
+                                rows="4">{{ item.description if item else '' }}</textarea>
+                        </div>
+                        
+                        <div class="mb-4" data-aos="fade-up" data-aos-delay="250">
+                            <label class="form-label d-block">
+                                <i class="fas fa-image me-2"></i>Product Image
+                            </label>
+                            
+                            <div class="file-upload-container" id="dropArea">
+                                <i class="fas fa-cloud-upload-alt file-upload-icon"></i>
+                                <h5 class="file-upload-text">Drag & Drop your image here</h5>
+                                <p class="text-muted">or</p>
+                                <span class="file-upload-btn">Browse Files</span>
+                                <input type="file" class="file-input" id="file" name="file" accept="image/*"
+                                {% if not item %}required{% endif %}>
+                            </div>
+                            
+                            <div class="form-text">
+                                {% if item %}
+                                    <i class="fas fa-info-circle me-1"></i> Leave blank to keep the current image.
+                                {% else %}
+                                    <i class="fas fa-info-circle me-1"></i> Upload a clear image of the product. Supported formats: JPG, JPEG, PNG.
+                                {% endif %}
+                            </div>
+                            
+                            <div class="image-preview-container" id="previewContainer" style="display: none;">
+                                <img id="image-preview" class="image-preview" src="#" alt="Preview">
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4" data-aos="fade-up" data-aos-delay="300">
+                            <a href="{{ url_for('admin_products') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i> Back to Products
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas {% if item %}fa-save{% else %}fa-plus-circle{% endif %} me-2"></i> 
+                                {% if item %}Update Product{% else %}Create Product{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        {% if item %}
+        <div class="col-md-4">
+            <div class="card mb-4" data-aos="fade-up" data-aos-delay="350">
+                <div class="card-header">
+                    <h5>
+                        <i class="fas fa-image me-2"></i>Current Image
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="current-image-container">
+                    <img src="{{ url_for('static', filename=item.image_path) }}" alt="{{ item.name }}" 
+                            class="current-image">
+                        <div class="current-image-overlay">
+                            <span class="badge bg-light text-dark">
+                                <i class="fas fa-eye me-1"></i> Current Image
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card" data-aos="fade-up" data-aos-delay="400">
+                <div class="card-header">
+                    <h5>
+                        <i class="fas fa-info-circle me-2"></i>Product Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">
+                            <i class="far fa-calendar-alt me-2"></i>Created On
+                        </dt>
+                        <dd class="col-sm-7">{{ item.created_at.strftime('%d %b %Y') }}</dd>
+                        
+                        <dt class="col-sm-5">
+                            <i class="fas fa-user me-2"></i>Added By
+                        </dt>
+                        <dd class="col-sm-7">{{ item.owner.username }}</dd>
+                        
+                        <dt class="col-sm-5">
+                            <i class="fas fa-leaf me-2"></i>Sustainability
+                        </dt>
+                        <dd class="col-sm-7">
+                            <span class="badge badge-sustainability bg-{% if item.sustainability_score < 2.5 %}danger{% elif item.sustainability_score < 3.5 %}warning{% else %}success{% endif %}">
+                                <i class="fas fa-{% if item.sustainability_score < 2.5 %}exclamation-circle{% elif item.sustainability_score < 3.5 %}exclamation-triangle{% else %}check-circle{% endif %}"></i>
+                                {{ item.sustainability_score }}
+                            </span>
+                        </dd>
+                        
+                        <dt class="col-sm-5">
+                            <i class="fas fa-star me-2"></i>Rating
+                        </dt>
+                        <dd class="col-sm-7">
+                            <div class="d-flex align-items-center">
+                                <div class="star-rating me-2">
+                                    {% set score = item.get_vote_score()|round(1) %}
+                                    {% for i in range(5) %}
+                                        {% if i < score|int %}
+                                            <i class="fas fa-star text-warning"></i>
+                                        {% elif i == score|int and score % 1 >= 0.5 %}
+                                            <i class="fas fa-star-half-alt text-warning"></i>
+                                        {% else %}
+                                            <i class="far fa-star text-warning"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <span>{{ score }}</span>
+                                <span class="text-muted ms-2">({{ item.votes.count() }} votes)</span>
+                            </div>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize AOS animations
+        AOS.init({
+            duration: 800,
+            easing: 'ease-out',
+            once: true
+        });
+        
+        // File upload interaction
+        const dropArea = document.getElementById('dropArea');
+        const fileInput = document.getElementById('file');
+        const previewContainer = document.getElementById('previewContainer');
+        const imagePreview = document.getElementById('image-preview');
+        
+        // Add file browse button functionality
+        dropArea.addEventListener('click', function() {
+            fileInput.click();
+        });
+        
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        // Highlight drop area when dragging over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        // Handle dropped files
+        dropArea.addEventListener('drop', handleDrop, false);
+        
+        // Handle file input change
+        fileInput.addEventListener('change', handleFiles);
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        function highlight() {
+            dropArea.classList.add('border-primary');
+            dropArea.style.borderColor = 'var(--primary-light)';
+            dropArea.style.backgroundColor = 'rgba(106, 17, 203, 0.05)';
+        }
+        
+        function unhighlight() {
+            dropArea.classList.remove('border-primary');
+            dropArea.style.borderColor = 'var(--dark-border)';
+            dropArea.style.backgroundColor = 'var(--dark-surface-2)';
+        }
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            
+            if (files.length) {
+                fileInput.files = files;
+                handleFiles();
+            }
+        }
+        
+        function handleFiles() {
+            const file = fileInput.files[0];
+        if (file) {
+            const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                    previewContainer.classList.add('show');
+                    
+                    // Add a subtle animation
+                    previewContainer.style.animation = 'fadeInUp 0.5s ease forwards';
+            };
+            reader.readAsDataURL(file);
+        }
+        }
+        
+        // Form validation animation
+        const productForm = document.getElementById('productForm');
+        productForm.addEventListener('submit', function(e) {
+            if (!productForm.checkValidity()) {
+                e.preventDefault();
+                
+                // Highlight the invalid fields with a pulse animation
+                const invalidInputs = productForm.querySelectorAll(':invalid');
+                invalidInputs.forEach(input => {
+                    input.style.borderColor = '#dc3545';
+                    input.style.animation = 'pulse 1s';
+                    
+                    // Reset the animation and styling after some time
+                    setTimeout(() => {
+                        input.style.animation = '';
+                    }, 1000);
+                });
+            }
+        });
+    });
+</script>
+{% endblock %} 

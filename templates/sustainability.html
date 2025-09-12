@@ -1,0 +1,896 @@
+{% extends "base.html" %}
+
+{% block title %}Sustainability - Fashion Recommender{% endblock %}
+
+{% block head %}
+{{ super() }}
+<!-- Add Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- Add AOS library for scroll animations -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<style>
+    :root {
+        --dark-bg: #0a0a0a;
+        --dark-bg-secondary: #161616;
+        --dark-card: #1e1e1e;
+        --dark-text: #f0f0f0;
+        --dark-text-secondary: #b0b0b0;
+        --accent-color: #4caf50;
+        --accent-secondary: #80e27e;
+        --accent-hover: #45a049;
+        --transition: all 0.3s ease;
+    }
+    
+    body.dark-mode {
+        background-color: #0a0a0a;
+        color: #ffffff;
+    }
+    
+    body.dark-mode .navbar {
+        background-color: var(--dark-bg) !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        border-bottom: 1px solid #333;
+    }
+    
+    body.dark-mode .navbar-brand, 
+    body.dark-mode .nav-link {
+        color: var(--dark-text) !important;
+    }
+    
+    body.dark-mode .nav-link:hover,
+    body.dark-mode .nav-link.active {
+        color: var(--accent-color) !important;
+    }
+    
+    body.dark-mode .navbar .navbar-toggler {
+        border-color: var(--accent-color);
+    }
+    
+    body.dark-mode .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(76, 175, 80, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
+    
+    body.dark-mode .hero {
+        background-color: var(--dark-bg-secondary);
+        padding: 7rem 0 5rem;
+        margin-bottom: 3rem;
+        border-radius: 0 0 50px 50px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    body.dark-mode .hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('https://images.unsplash.com/photo-1606041008023-472dfb5e530f?ixlib=rb-4.0.3&auto=format&fit=crop&q=80') center/cover;
+        opacity: 0.15;
+        z-index: 0;
+    }
+    
+    body.dark-mode .hero .container {
+        position: relative;
+        z-index: 1;
+    }
+    
+    body.dark-mode .hero h1 {
+        font-size: 3.5rem;
+        margin-bottom: 1.5rem;
+        text-shadow: 0 2px 15px rgba(0, 0, 0, 0.8);
+    }
+    
+    body.dark-mode .hero h1 i {
+        color: var(--accent-color);
+    }
+    
+    body.dark-mode .hero .lead {
+        font-size: 1.25rem;
+        max-width: 700px;
+        margin: 0 auto;
+        color: var(--dark-text-secondary);
+    }
+    
+    body.dark-mode .card {
+        background-color: #0d0d0d;
+        border: none;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        transition: var(--transition);
+        border-radius: 12px;
+        overflow: hidden;
+        border-bottom: 3px solid transparent;
+    }
+    
+    body.dark-mode .card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        border-bottom: 3px solid var(--accent-color);
+    }
+    
+    body.dark-mode .card-title {
+        color: #ffffff;
+        font-weight: 600;
+    }
+    
+    body.dark-mode .card-text {
+        color: #e0e0e0;
+    }
+    
+    body.dark-mode .text-secondary, 
+    body.dark-mode .dark-text-secondary {
+        color: #d0d0d0 !important;
+    }
+    
+    body.dark-mode .key-aspect span {
+        color: #ffffff;
+    }
+    
+    body.dark-mode .btn-primary {
+        background-color: #333;
+        border-color: #444;
+        color: white;
+        transition: var(--transition);
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        padding: 0.5rem 1.5rem;
+        border-radius: 50px;
+    }
+    
+    body.dark-mode .btn-primary:hover {
+        background-color: #444;
+        border-color: #555;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    body.dark-mode .btn-outline-primary {
+        color: #ffffff;
+        border-color: #333;
+        background-color: transparent;
+        border-radius: 50px;
+        font-weight: 500;
+    }
+    
+    body.dark-mode .btn-outline-primary:hover {
+        background-color: #333;
+        border-color: #444;
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    body.dark-mode .table {
+        color: #ffffff;
+    }
+    
+    body.dark-mode .table-striped tbody tr:nth-of-type(odd) {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    body.dark-mode .table thead th {
+        background-color: #252525;
+        border-bottom: 2px solid var(--accent-color);
+        color: var(--accent-color);
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        font-weight: 600;
+        letter-spacing: 1px;
+        padding: 1.2rem 1rem;
+    }
+    
+    body.dark-mode .table td, body.dark-mode .table th {
+        border-top: 1px solid #333;
+        padding: 1rem;
+    }
+    
+    body.dark-mode .progress {
+        background-color: #333;
+        height: 12px;
+        border-radius: 6px;
+        overflow: hidden;
+        margin-top: 8px;
+    }
+    
+    body.dark-mode .progress-bar {
+        background-color: #333333 !important;
+        color: #ffffff;
+    }
+    
+    body.dark-mode .sustainability-factor {
+        background-color: #0d0d0d;
+        padding: 1.5rem;
+        border-radius: 12px;
+        height: 100%;
+        transition: var(--transition);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid var(--accent-color);
+    }
+    
+    body.dark-mode .sustainability-factor:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    body.dark-mode .sustainability-factor h3 {
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        color: var(--dark-text);
+    }
+    
+    body.dark-mode .sustainability-factor h3 i {
+        margin-right: 10px;
+        color: var(--accent-color);
+        font-size: 1.5rem;
+    }
+    
+    body.dark-mode .sustainability-factor p {
+        color: #e0e0e0;
+        margin-bottom: 1.5rem;
+    }
+    
+    body.dark-mode .section-header {
+        position: relative;
+        padding-bottom: 15px;
+        margin-bottom: 30px;
+        color: var(--dark-text);
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    body.dark-mode .section-header i {
+        margin-right: 10px;
+        color: var(--accent-color);
+        font-size: 1.8rem;
+    }
+    
+    body.dark-mode .section-header::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(to right, var(--accent-color), transparent);
+        bottom: 0;
+        left: 0;
+    }
+    
+    body.dark-mode .material-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    body.dark-mode .material-icon {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--dark-bg-secondary);
+        color: var(--accent-color);
+        border-radius: 50%;
+        margin-right: 15px;
+        font-size: 1.5rem;
+    }
+    
+    body.dark-mode .sustainable-tip-icon {
+        font-size: 2.5rem;
+        color: var(--accent-color);
+        margin-bottom: 1.5rem;
+        transition: var(--transition);
+    }
+    
+    body.dark-mode .card:hover .sustainable-tip-icon {
+        transform: scale(1.2);
+    }
+    
+    body.dark-mode .badge.bg-success {
+        background-color: #333 !important;
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+        border: 1px solid #444;
+    }
+    
+    body.dark-mode .badge.bg-primary {
+        background-color: #222 !important;
+        color: #e0e0e0;
+        border: 1px solid #444;
+    }
+    
+    body.dark-mode #sustainabilityCheck {
+        background-color: #0d0d0d;
+        padding: 2.5rem;
+        border-radius: 12px;
+        margin-top: 2rem;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #333;
+    }
+    
+    body.dark-mode #sustainabilityCheck::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('https://images.unsplash.com/photo-1586034679970-cb7b5fc4928a?ixlib=rb-4.0.3&auto=format&fit=crop&q=80') center/cover;
+        opacity: 0.1;
+        z-index: 0;
+    }
+    
+    body.dark-mode #sustainabilityCheck .card-body {
+        position: relative;
+        z-index: 1;
+    }
+    
+    body.dark-mode .key-aspect {
+        background-color: #0d0d0d;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        transition: var(--transition);
+    }
+    
+    body.dark-mode .key-aspect:hover {
+        transform: translateX(10px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    body.dark-mode .key-aspect i {
+        font-size: 1.5rem;
+        margin-right: 15px;
+        color: var(--accent-color);
+    }
+    
+    body.dark-mode .card-img-top {
+        height: 220px;
+        object-fit: cover;
+        filter: brightness(0.9);
+        transition: var(--transition);
+    }
+    
+    body.dark-mode .card:hover .card-img-top {
+        filter: brightness(1.1);
+        transform: scale(1.05);
+    }
+    
+    body.dark-mode .image-container {
+        width: 100%;
+        height: 300px;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 2rem;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    body.dark-mode .responsive-img-container {
+        width: 100%;
+        height: auto;
+        max-height: 250px;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    body.dark-mode .responsive-img-container img {
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+        transition: var(--transition);
+        filter: brightness(0.85);
+    }
+    
+    body.dark-mode .responsive-img-container:hover img {
+        transform: scale(1.03);
+        filter: brightness(1);
+    }
+    
+    body.dark-mode .sustainability-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: var(--transition);
+        filter: brightness(0.8);
+    }
+    
+    body.dark-mode .divider {
+        height: 3px;
+        background: linear-gradient(to right, var(--accent-color), transparent);
+        margin: 3rem 0;
+        border-radius: 3px;
+    }
+    
+    body.dark-mode .floating-animation {
+        animation: floating 3s ease-in-out infinite;
+    }
+    
+    @keyframes floating {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-15px); }
+        100% { transform: translateY(0px); }
+    }
+    
+    body.dark-mode .pulse-animation {
+        animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+    
+    body.dark-mode .image-grid-item {
+        overflow: hidden;
+        border-radius: 12px;
+        transition: var(--transition);
+    }
+    
+    body.dark-mode .image-grid-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    body.dark-mode .image-grid-item img {
+        width: 100%;
+        transition: var(--transition);
+        filter: brightness(0.85);
+        object-fit: cover;
+    }
+    
+    body.dark-mode .image-grid-item:hover img {
+        filter: brightness(1);
+        transform: scale(1.05);
+    }
+    
+    body.dark-mode p {
+        color: #e0e0e0;
+    }
+    
+    /* Improve contrast for better text visibility */
+    body.dark-mode .dark-card {
+        background-color: #1a1a1a;
+    }
+    
+    /* Additional styles to ensure dark backgrounds */
+    body.dark-mode {
+        background-color: #0a0a0a;
+        color: #ffffff;
+    }
+    
+    body.dark-mode .card {
+        background-color: #0d0d0d;
+        border: none;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    body.dark-mode #sustainabilityCheck {
+        background-color: #0d0d0d;
+        border: 1px solid #333;
+    }
+    
+    body.dark-mode #sustainabilityCheck::before {
+        opacity: 0.1;
+    }
+    
+    body.dark-mode .btn-primary {
+        background-color: #333;
+        border-color: #444;
+    }
+    
+    body.dark-mode .btn-primary:hover {
+        background-color: #444;
+        border-color: #555;
+    }
+    
+    body.dark-mode .btn-outline-primary {
+        color: #ffffff;
+        border-color: #333;
+        background-color: transparent;
+    }
+    
+    body.dark-mode .btn-outline-primary:hover {
+        background-color: #333;
+        border-color: #444;
+    }
+    
+    /* Make sure all card backgrounds are consistently dark */
+    body.dark-mode .sustainability-factor,
+    body.dark-mode .key-aspect {
+        background-color: #0d0d0d;
+    }
+    
+    /* Ensure section text is white */
+    body.dark-mode .section-header,
+    body.dark-mode h1, 
+    body.dark-mode h2, 
+    body.dark-mode h3, 
+    body.dark-mode h4, 
+    body.dark-mode h5, 
+    body.dark-mode h6 {
+        color: #ffffff;
+    }
+    
+    /* Ensure proper contrast for badges */
+    body.dark-mode .badge.bg-success {
+        background-color: #333 !important;
+        border: 1px solid #444;
+    }
+    
+    body.dark-mode .table-striped tbody tr:nth-of-type(odd) {
+        background-color: #151515;
+    }
+    
+    body.dark-mode .table-striped tbody tr:nth-of-type(even) {
+        background-color: #0d0d0d;
+    }
+    
+    body.dark-mode .table thead th {
+        background-color: #181818;
+        color: #4caf50;
+        border-bottom: 2px solid #333;
+    }
+    
+    body.dark-mode .badge.bg-primary {
+        background-color: #222 !important;
+        color: #e0e0e0;
+        border: 1px solid #444;
+    }
+    
+    /* Darker backgrounds for all cards and containers */
+    body.dark-mode .card,
+    body.dark-mode .sustainability-factor,
+    body.dark-mode .key-aspect,
+    body.dark-mode #sustainabilityCheck {
+        background-color: #0d0d0d;
+        border: 1px solid #222;
+    }
+    
+    /* Consistent styling for all buttons */
+    body.dark-mode .btn-primary,
+    body.dark-mode .btn-outline-primary:hover {
+        background-color: #222;
+        border-color: #333;
+        color: #ffffff;
+    }
+    
+    body.dark-mode .btn-primary:hover {
+        background-color: #333;
+        border-color: #444;
+    }
+    
+    /* Consistent accent colors */
+    body.dark-mode .section-header i,
+    body.dark-mode .sustainable-tip-icon,
+    body.dark-mode .key-aspect i {
+        color: #4caf50;
+    }
+    
+    .image-hover-zoom:hover img {
+        transform: scale(1.1);
+        filter: brightness(1.1) !important;
+    }
+    
+    .sustainable-material-card {
+        transition: all 0.3s ease;
+    }
+    
+    .sustainable-material-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.4) !important;
+        border-color: #333 !important;
+    }
+    
+    .sustainable-material-card:hover h5 {
+        color: #4caf50 !important;
+    }
+    
+    @media (max-width: 768px) {
+        .image-hover-zoom {
+            height: 200px !important;
+        }
+    }
+    
+    .card .icon-container {
+        transition: all 0.3s ease;
+        border: 1px solid #333;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .card:hover .icon-container {
+        background-color: #222;
+        transform: scale(1.1) rotate(5deg);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+    
+    .card:hover .sustainable-tip-icon {
+        color: #5cce60;
+        transform: scale(1.2);
+    }
+    
+    .card:hover {
+        transform: translateY(-10px);
+        background-color: #111 !important;
+        border-color: #333 !important;
+        box-shadow: 0 15px 30px rgba(0,0,0,0.4) !important;
+    }
+    
+    .card:hover h5 {
+        color: #4caf50 !important;
+    }
+    
+    .card:hover p {
+        color: #f0f0f0 !important;
+    }
+    
+    .card::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 3px;
+        background-color: #4caf50;
+        transition: width 0.3s ease;
+    }
+    
+    .card:hover::after {
+        width: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero text-center" data-aos="fade-up">
+    <div class="container">
+        <h1 class="mb-4" style="color: #ffffff;"><i class="fas fa-leaf pulse-animation"></i> Sustainable Fashion</h1>
+        <p class="lead" style="color: #e0e0e0;">Learn about sustainable fashion and how to make environmentally conscious choices.</p>
+        <div class="mt-4">
+            <a href="#learn-more" class="btn btn-primary" style="background-color: #333; border-color: #444;"><i class="fas fa-arrow-down me-2"></i>Learn More</a>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-5" id="learn-more">
+    <div class="row mb-5 align-items-center">
+        <div class="col-md-6" data-aos="fade-right">
+            <h2 class="section-header"><i class="fas fa-info-circle"></i> <span style="color: #ffffff;">What is Sustainable Fashion?</span></h2>
+            <p>Sustainable fashion is an approach to fashion that maximizes benefits to people and communities while minimizing impact on the environment. This includes addressing the whole system of fashion, from the growing or production of fibers to the continued use and disposal of products.</p>
+            
+            <div class="mt-4">
+                <div class="key-aspect" data-aos="fade-up" data-aos-delay="100">
+                    <i class="fas fa-leaf"></i>
+                    <span style="color: #ffffff;">Using environmentally friendly materials</span>
+                </div>
+                <div class="key-aspect" data-aos="fade-up" data-aos-delay="200">
+                    <i class="fas fa-recycle"></i>
+                    <span style="color: #ffffff;">Reducing waste and pollution</span>
+                </div>
+                <div class="key-aspect" data-aos="fade-up" data-aos-delay="300">
+                    <i class="fas fa-hands-helping"></i>
+                    <span style="color: #ffffff;">Supporting fair labor practices</span>
+                </div>
+                <div class="key-aspect" data-aos="fade-up" data-aos-delay="400">
+                    <i class="fas fa-clock"></i>
+                    <span style="color: #ffffff;">Creating durable, long-lasting products</span>
+                </div>
+                <div class="key-aspect" data-aos="fade-up" data-aos-delay="500">
+                    <i class="fas fa-sync-alt"></i>
+                    <span style="color: #ffffff;">Promoting circular economy principles</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6" data-aos="fade-left" data-aos-delay="200">
+            <div class="card h-100 border-0">
+                <div class="card-body p-0">
+                    <div class="d-flex flex-column gap-3">
+                        <div class="image-grid-item">
+                            <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Sustainable fashion materials" class="img-fluid rounded-3 shadow">
+                        </div>
+                        <div class="d-flex gap-3">
+                            <div class="image-grid-item">
+                                <img src="https://th.bing.com/th/id/OIP.SOvmQiYWw9cOHcd9520wwQHaLH?rs=1&pid=ImgDetMain" alt="Eco-friendly clothing" class="img-fluid rounded-3 shadow">
+                            </div>
+                            <div class="image-grid-item">
+                                <img src="https://images.unsplash.com/photo-1581539250439-c96689b516dd?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Sustainable fashion" class="img-fluid rounded-3 shadow">
+                            </div>
+                        </div>
+                    </div>
+            </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="divider"></div>
+    
+    <div class="row mb-5">
+        <div class="col-md-8" data-aos="fade-right">
+            <div class="card" id="sustainabilityCheck" style="background-color: #0d0d0d; border: 1px solid #333;">
+                <div class="card-body text-center">
+                    <i class="fas fa-tshirt mb-4 floating-animation" style="font-size: 4rem; color: #ffffff;"></i>
+                    <h5 class="card-title mb-3" style="color: #ffffff; font-size: 1.4rem;">Check Your Item's Sustainability</h5>
+                    <p class="card-text mb-4" style="color: #e0e0e0; font-size: 1.1rem;">Upload a clothing item to assess its sustainability without saving it. Our AI will analyze materials, production methods, and environmental impact.</p>
+                    <a href="{{ url_for('sustainability_check') }}" class="btn btn-primary" style="background-color: #333; border-color: #444; color: white;"><i class="fas fa-search me-2"></i>Check Now</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4" data-aos="fade-left" data-aos-delay="200">
+            <div style="position: relative; height: 100%; min-height: 300px;">
+                <img src="https://images.unsplash.com/photo-1542272604-787c3835535d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Sustainable clothing" class="img-fluid rounded-4 shadow-lg" style="object-fit: cover; height: 100%;">
+                <div class="position-absolute bottom-0 start-0 w-100 p-3 text-center" style="background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); border-radius: 0 0 1rem 1rem;">
+                    <span class="badge bg-success py-2 px-3" style="background-color: #333 !important; border: 1px solid #444;"><i class="fas fa-check-circle me-1"></i> Eco-Friendly</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <h2 class="section-header mt-5" data-aos="fade-up"><i class="fas fa-balance-scale"></i> Sustainability Factors</h2>
+    <div class="row">
+        {% set icons = ['leaf', 'tint', 'industry', 'globe-americas', 'users', 'recycle'] %}
+        {% for factor in factors %}
+        <div class="col-md-6 mb-4" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
+            <div class="sustainability-factor" style="background-color: #0d0d0d; border-left: 4px solid #444;">
+                <h3 style="color: #ffffff;"><i class="fas fa-{{ icons[loop.index0 % icons|length] }}" style="color: #4caf50;"></i> {{ factor.name }}</h3>
+                <p style="color: #e0e0e0;">{{ factor.description }}</p>
+                <div class="progress" style="background-color: #222222;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ (factor.weight / 1.5) * 100 }}%; background-color: #333333 !important;" aria-valuenow="{{ factor.weight }}" aria-valuemin="0" aria-valuemax="1.5">
+                        <span style="color: #ffffff; font-weight: 500;">Weight: {{ factor.weight }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if sample_items %}
+    <div class="divider"></div>
+    
+    <div class="mt-5" data-aos="fade-up">
+        <h2 class="section-header text-center"><i class="fas fa-award"></i> Most Sustainable Items</h2>
+        <p class="text-center mb-5" style="color: #d0d0d0;">These items have been rated highly for their sustainability features</p>
+        
+        <div class="row">
+            {% for item in sample_items %}
+            <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
+                <div class="card h-100" style="background-color: #0d0d0d; border: 1px solid #222;">
+                    <div class="position-relative overflow-hidden">
+                        <img src="{{ url_for('static', filename=item.image_path) }}" class="card-img-top" alt="{{ item.name }}">
+                        <div class="position-absolute top-0 end-0 m-2">
+                            <span class="badge bg-success" style="background-color: #333 !important; border: 1px solid #444;"><i class="fas fa-leaf me-1"></i> {{ item.sustainability_score }}/5</span>
+                        </div>
+                    </div>
+                    <div class="card-body" style="background-color: #0d0d0d;">
+                        <h5 class="card-title mb-3" style="color: #ffffff;">{{ item.name }}</h5>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="vote-score">
+                                <span class="badge bg-primary" style="background-color: #222 !important; color: #e0e0e0; border: 1px solid #444;"><i class="fas fa-star me-1" style="color: #ffc107;"></i> {{ item.get_vote_score() }}/5 ({{ item.votes.count() }})</span>
+                            </div>
+                            <a href="{{ url_for('item_details', item_id=item.id) }}" class="btn btn-outline-primary btn-sm" style="background-color: transparent; border-color: #444; color: #ffffff;"><i class="fas fa-info-circle me-1"></i> Details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="divider"></div>
+    
+    <div class="row mt-5" data-aos="fade-up">
+        <div class="col-md-12">
+            <h2 class="section-header mb-4"><i class="fas fa-lightbulb"></i> Tips for Sustainable Fashion</h2>
+            
+            <div class="row g-4">
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="card h-100 text-center" style="background-color: #0d0d0d; border: 1px solid #222; box-shadow: 0 8px 15px rgba(0,0,0,0.3);">
+                        <div class="card-body">
+                            <div class="icon-container" style="width: 80px; height: 80px; margin: 0 auto 1.5rem; background-color: #161616; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-balance-scale sustainable-tip-icon" style="font-size: 2.5rem; color: #4caf50;"></i>
+                            </div>
+                            <h5 class="card-title" style="color: #ffffff; font-weight: 600;">Buy Less, Choose Well</h5>
+                            <p class="card-text" style="color: #e0e0e0;">Invest in quality pieces that will last longer rather than fast fashion items that quickly wear out.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="card h-100 text-center" style="background-color: #0d0d0d; border: 1px solid #222; box-shadow: 0 8px 15px rgba(0,0,0,0.3);">
+                        <div class="card-body">
+                            <div class="icon-container" style="width: 80px; height: 80px; margin: 0 auto 1.5rem; background-color: #161616; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-store sustainable-tip-icon" style="font-size: 2.5rem; color: #4caf50;"></i>
+                            </div>
+                            <h5 class="card-title" style="color: #ffffff; font-weight: 600;">Second-Hand Shopping</h5>
+                            <p class="card-text" style="color: #e0e0e0;">Explore thrift stores, vintage shops, and online resale platforms to give existing clothes a second life.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="card h-100 text-center" style="background-color: #0d0d0d; border: 1px solid #222; box-shadow: 0 8px 15px rgba(0,0,0,0.3);">
+                        <div class="card-body">
+                            <div class="icon-container" style="width: 80px; height: 80px; margin: 0 auto 1.5rem; background-color: #161616; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-tshirt sustainable-tip-icon" style="font-size: 2.5rem; color: #4caf50;"></i>
+                            </div>
+                            <h5 class="card-title" style="color: #ffffff; font-weight: 600;">Care for Your Clothes</h5>
+                            <p class="card-text" style="color: #e0e0e0;">Wash clothes less frequently, at lower temperatures, and line dry when possible to extend their lifespan.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="400">
+                    <div class="card h-100 text-center" style="background-color: #0d0d0d; border: 1px solid #222; box-shadow: 0 8px 15px rgba(0,0,0,0.3);">
+                        <div class="card-body">
+                            <div class="icon-container" style="width: 80px; height: 80px; margin: 0 auto 1.5rem; background-color: #161616; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-search sustainable-tip-icon" style="font-size: 2.5rem; color: #4caf50;"></i>
+                            </div>
+                            <h5 class="card-title" style="color: #ffffff; font-weight: 600;">Research Brands</h5>
+                            <p class="card-text" style="color: #e0e0e0;">Support brands that are transparent about their supply chain and committed to sustainable practices.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="500">
+                    <div class="card h-100 text-center" style="background-color: #0d0d0d; border: 1px solid #222; box-shadow: 0 8px 15px rgba(0,0,0,0.3);">
+                        <div class="card-body">
+                            <div class="icon-container" style="width: 80px; height: 80px; margin: 0 auto 1.5rem; background-color: #161616; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-tools sustainable-tip-icon" style="font-size: 2.5rem; color: #4caf50;"></i>
+                            </div>
+                            <h5 class="card-title" style="color: #ffffff; font-weight: 600;">Repair and Upcycle</h5>
+                            <p class="card-text" style="color: #e0e0e0;">Learn basic mending skills or find a local tailor to repair items instead of discarding them.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="600">
+                    <div class="card h-100 text-center" style="background-color: #0d0d0d; border: 1px solid #222; box-shadow: 0 8px 15px rgba(0,0,0,0.3);">
+                        <div class="card-body">
+                            <div class="icon-container" style="width: 80px; height: 80px; margin: 0 auto 1.5rem; background-color: #161616; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-gift sustainable-tip-icon" style="font-size: 2.5rem; color: #4caf50;"></i>
+                            </div>
+                            <h5 class="card-title" style="color: #ffffff; font-weight: 600;">Rent for Special Occasions</h5>
+                            <p class="card-text" style="color: #e0e0e0;">Consider renting outfits for special events rather than buying something you'll only wear once.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row my-5 align-items-center" data-aos="fade-up" style="background-color: #0a0a0a; padding: 2rem; border-radius: 12px; box-shadow: inset 0 0 20px rgba(0,0,0,0.3);">
+        <div class="col-md-12 text-center">
+            <div class="position-relative mx-auto" style="width: 180px; margin-bottom: 2.5rem;">
+                <div style="width: 180px; height: 180px; border-radius: 50%; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.5); border: 4px solid #4caf50;">
+                    <img src="https://images.unsplash.com/photo-1532453288672-3a27e9be9efd?ixlib=rb-4.0.3&auto=format&fit=crop&q=80" alt="Sustainable fashion tips" style="width: 100%; height: 100%; object-fit: cover; filter: brightness(0.8); transition: transform 0.5s ease;">
+                </div>
+                <div class="position-absolute" style="width: 60px; height: 60px; background-color: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; bottom: -15px; right: -15px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+                    <i class="fas fa-leaf fa-2x text-white pulse-animation"></i>
+                </div>
+            </div>
+            <p style="color: #d0d0d0; max-width: 700px; margin: 0 auto; font-size: 1.1rem; line-height: 1.6;">
+                Making sustainable fashion choices helps reduce environmental impact and supports ethical production practices across the global supply chain.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- AOS Animation JS -->
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add dark mode class to body
+        document.body.classList.add('dark-mode');
+        
+        // Initialize AOS animations
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+    });
+</script>
+{% endblock %} 

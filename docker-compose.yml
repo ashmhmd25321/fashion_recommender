@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  fashion-recommender:
+    build: .
+    container_name: fashion-recommender-app
+    restart: unless-stopped
+    ports:
+      - "5001:5001"  # Flask app
+      - "8501:8501"  # Streamlit app
+    volumes:
+      - ./static/uploads:/app/static/uploads
+      - ./static/images:/app/static/images
+      - ./instance:/app/instance
+      - ./embeddings_simple.pkl:/app/embeddings_simple.pkl
+      - ./filenames_simple.pkl:/app/filenames_simple.pkl
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-this}
+      - DATABASE_URL=${DATABASE_URL:-sqlite:///fashion.db}
+    networks:
+      - fashion-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: fashion-recommender-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - fashion-recommender
+    networks:
+      - fashion-network
+
+networks:
+  fashion-network:
+    driver: bridge
+
+volumes:
+  uploads:
+  images:
+  database:

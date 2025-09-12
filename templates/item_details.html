@@ -1,0 +1,828 @@
+{% extends "base.html" %}
+
+{% block title %}{{ item.name }} - Fashion Recommender{% endblock %}
+
+{% block extra_css %}
+<style>
+    .item-details-container {
+        background-color: #232323;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .item-image-container {
+        position: relative;
+        overflow: hidden;
+        border-radius: 8px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        height: 100%;
+        max-height: 500px;
+    }
+    
+    .item-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .item-image-container:hover .item-image {
+        transform: scale(1.03);
+    }
+    
+    .item-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        background: linear-gradient(45deg, #fff, #f8f9fa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .rating-display {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .rating .fas {
+        color: #ffc107;
+        font-size: 1.2rem;
+    }
+    
+    .rating .far {
+        color: rgba(255, 255, 255, 0.2);
+        font-size: 1.2rem;
+    }
+    
+    .vote-count {
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .vote-score {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #fff;
+    }
+    
+    .info-section {
+        background-color: #2a2a2a;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .sustainability-section {
+        border-color: #28a745;
+    }
+    
+    .description-section {
+        border-color: #6a11cb;
+    }
+    
+    .uploader-section {
+        border-color: #fd7e14;
+    }
+    
+    .section-title {
+        display: flex;
+        align-items: center;
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #fff;
+    }
+    
+    .section-title i {
+        margin-right: 0.75rem;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 0.9rem;
+    }
+    
+    .sustainability-section .section-title i {
+        background-color: rgba(40, 167, 69, 0.2);
+        color: #28a745;
+    }
+    
+    .description-section .section-title i {
+        background-color: rgba(106, 17, 203, 0.2);
+        color: #8a3df9;
+    }
+    
+    .uploader-section .section-title i {
+        background-color: rgba(253, 126, 20, 0.2);
+        color: #fd7e14;
+    }
+    
+    .sustainability-score {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        margin-right: 1rem;
+    }
+    
+    .score-1, .score-2 {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .score-3 {
+        background-color: #fd7e14;
+        color: white;
+    }
+    
+    .score-4, .score-5 {
+        background-color: #28a745;
+        color: white;
+    }
+    
+    .sustainability-badge {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border-radius: 30px;
+    }
+    
+    .section-content {
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 1.6;
+    }
+    
+    .uploader-info {
+        display: flex;
+        align-items: center;
+    }
+    
+    .uploader-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #6a11cb;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        margin-right: 1rem;
+        font-size: 1.2rem;
+    }
+    
+    .uploader-details {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .uploader-name {
+        font-weight: 600;
+        color: #fff;
+    }
+    
+    .upload-date {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .community-votes-section {
+        margin-top: 3rem;
+    }
+    
+    .section-header {
+        position: relative;
+        padding-bottom: 0.75rem;
+        margin-bottom: 2rem;
+        font-weight: 600;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        font-size: 1.5rem;
+    }
+    
+    .section-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(45deg, #6a11cb, #2575fc);
+    }
+    
+    .section-header i {
+        margin-right: 0.75rem;
+        background: linear-gradient(45deg, #6a11cb, #2575fc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .vote-card {
+        background-color: #2a2a2a;
+        border-radius: 10px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        margin-bottom: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .vote-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        border-color: rgba(106, 17, 203, 0.2);
+    }
+    
+    .vote-card-body {
+        padding: 1.5rem;
+    }
+    
+    .vote-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .voter-info {
+        display: flex;
+        align-items: center;
+    }
+    
+    .voter-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, #6a11cb, #2575fc);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        margin-right: 1rem;
+        font-size: 1rem;
+    }
+    
+    .voter-name {
+        font-weight: 600;
+        color: #fff;
+    }
+    
+    .vote-date {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .vote-rating {
+        margin-bottom: 1rem;
+    }
+    
+    .vote-comment {
+        background-color: #232323;
+        border-radius: 8px;
+        padding: 1rem;
+        color: rgba(255, 255, 255, 0.8);
+        border-left: 3px solid #6a11cb;
+        font-style: italic;
+    }
+    
+    .rating-form-container {
+        background-color: #232323;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        position: sticky;
+        top: 2rem;
+    }
+    
+    .rating-form-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        color: #fff;
+    }
+    
+    .rating-form-subtitle {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .rating-form {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .rating-form .star {
+        font-size: 1.8rem;
+        color: rgba(255, 255, 255, 0.2);
+        cursor: pointer;
+        margin: 0 0.25rem;
+        transition: all 0.2s ease;
+    }
+    
+    .rating-form .star:hover,
+    .rating-form .star.hover,
+    .rating-form .star.active {
+        color: #ffc107;
+        transform: scale(1.2);
+    }
+    
+    .form-control {
+        background-color: #2d2d2d;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #fff;
+        border-radius: 8px;
+        padding: 0.8rem 1rem;
+    }
+    
+    .form-control:focus {
+        background-color: #333;
+        border-color: rgba(106, 17, 203, 0.5);
+        box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.25);
+        color: #fff;
+    }
+    
+    .form-label {
+        color: rgba(255, 255, 255, 0.8);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+    
+    .submit-btn {
+        background: linear-gradient(45deg, #6a11cb, #2575fc);
+        border: none;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        border-radius: 8px;
+        width: 100%;
+        box-shadow: 0 4px 15px rgba(106, 17, 203, 0.4);
+        transition: all 0.3s ease;
+    }
+    
+    .submit-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(106, 17, 203, 0.5);
+    }
+    
+    .login-card {
+        background: linear-gradient(135deg, #2a2a2a, #232323);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        text-align: center;
+        padding: 2.5rem;
+    }
+    
+    .login-icon {
+        font-size: 3rem;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(45deg, #6a11cb, #2575fc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .login-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #fff;
+    }
+    
+    .login-text {
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 1.5rem;
+    }
+    
+    .login-btn {
+        background: linear-gradient(45deg, #6a11cb, #2575fc);
+        border: none;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        border-radius: 30px;
+        box-shadow: 0 4px 15px rgba(106, 17, 203, 0.4);
+        transition: all 0.3s ease;
+    }
+    
+    .login-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(106, 17, 203, 0.5);
+    }
+    
+    .empty-votes {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 2rem;
+        text-align: center;
+        background-color: #2a2a2a;
+        border-radius: 12px;
+        border: 1px dashed rgba(255, 255, 255, 0.2);
+    }
+    
+    .empty-votes i {
+        font-size: 3rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.6;
+        color: rgba(255, 255, 255, 0.4);
+    }
+    
+    .empty-votes h4 {
+        margin-bottom: 1rem;
+        font-weight: 600;
+        color: #fff;
+    }
+    
+    .empty-votes p {
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 0;
+    }
+    
+    /* Toast notification styles */
+    .toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+    }
+    
+    .toast {
+        background-color: #232323;
+        color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        border-left: 4px solid #28a745;
+        overflow: hidden;
+        margin-bottom: 10px;
+        opacity: 0;
+        transform: translateX(50px);
+        transition: all 0.4s ease;
+    }
+    
+    .toast.show {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    
+    .toast-header {
+        background-color: #2a2a2a;
+        color: #fff;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .toast-header .btn-close {
+        filter: invert(1) grayscale(100%) brightness(200%);
+        opacity: 0.5;
+    }
+    
+    .toast-body {
+        padding: 0.75rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .toast-icon {
+        background: linear-gradient(45deg, #00c853, #64dd17);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 1.5rem;
+        margin-right: 0.75rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="item-details-container">
+    <div class="row">
+        <div class="col-md-6 mb-4 mb-md-0">
+            <div class="item-image-container">
+                <img src="{{ url_for('static', filename=item.image_path|normalize_path) }}" alt="{{ item.name }}" class="item-image">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <h1 class="item-title">{{ item.name }}</h1>
+            
+            <div class="rating-display">
+                <div class="rating">
+                    {% set score = item.get_vote_score() %}
+                    {% for i in range(5) %}
+                        {% if i < score|int %}
+                        <i class="fas fa-star"></i>
+                        {% else %}
+                        <i class="far fa-star"></i>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <span class="vote-score" id="vote-score">{{ score|round(1) }}</span>/5.0
+                <span class="vote-count ms-2">(<span id="votes-count">{{ item.votes.count() }}</span> votes)</span>
+            </div>
+            
+            <div class="info-section sustainability-section">
+                <h5 class="section-title"><i class="fas fa-leaf"></i>Sustainability Score</h5>
+                <div class="d-flex align-items-center">
+                    <div class="sustainability-score score-{{ item.sustainability_score|int }}">
+                        {{ item.sustainability_score }}
+                    </div>
+                    <div>
+                        {% if item.sustainability_score < 2.5 %}
+                        <span class="badge bg-danger sustainability-badge">Low Sustainability</span>
+                        <p class="section-content mt-2">This item has a low sustainability rating. Consider choosing alternatives with higher scores.</p>
+                        {% elif item.sustainability_score < 3.5 %}
+                        <span class="badge bg-warning text-dark sustainability-badge">Medium Sustainability</span>
+                        <p class="section-content mt-2">This item has a moderate sustainability rating. There's room for improvement.</p>
+                        {% else %}
+                        <span class="badge bg-success sustainability-badge">High Sustainability</span>
+                        <p class="section-content mt-2">This item has a high sustainability rating. An excellent eco-friendly choice!</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            {% if item.description %}
+            <div class="info-section description-section">
+                <h5 class="section-title"><i class="fas fa-info-circle"></i>Description</h5>
+                <p class="section-content">{{ item.description }}</p>
+            </div>
+            {% endif %}
+            
+            {% if item.sustainability_notes %}
+            <div class="info-section sustainability-section">
+                <h5 class="section-title"><i class="fas fa-clipboard-list"></i>Sustainability Notes</h5>
+                <p class="section-content">{{ item.sustainability_notes }}</p>
+            </div>
+            {% endif %}
+            
+            <div class="info-section uploader-section">
+                <h5 class="section-title"><i class="fas fa-user-circle"></i>Uploaded by</h5>
+                <div class="uploader-info">
+                    <div class="uploader-avatar">
+                        {{ item.owner.username[0]|upper }}
+                    </div>
+                    <div class="uploader-details">
+                        <span class="uploader-name">{{ item.owner.username }}</span>
+                        <span class="upload-date">
+                            <i class="far fa-calendar-alt me-1"></i> {{ item.created_at.strftime('%d %b %Y') }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast notification container -->
+<div class="toast-container">
+    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" id="ratingToast">
+        <div class="toast-header">
+            <strong class="me-auto">Rating Submitted</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            <div class="toast-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div id="toastMessage">Your rating has been successfully submitted!</div>
+        </div>
+    </div>
+</div>
+
+<div class="row community-votes-section">
+    <div class="col-md-8">
+        <h3 class="section-header"><i class="fas fa-comments"></i>Community Votes</h3>
+        
+        {% if item.votes.count() > 0 %}
+            {% for vote in item.votes %}
+            <div class="vote-card">
+                <div class="vote-card-body">
+                    <div class="vote-card-header">
+                        <div class="voter-info">
+                            <div class="voter-avatar">
+                                {{ vote.voter.username[0]|upper }}
+                            </div>
+                            <span class="voter-name">{{ vote.voter.username }}</span>
+                        </div>
+                        <span class="vote-date">
+                            <i class="far fa-calendar-alt me-1"></i> {{ vote.created_at.strftime('%d %b %Y') }}
+                        </span>
+                    </div>
+                    
+                    <div class="vote-rating">
+                        {% for i in range(5) %}
+                            {% if i < vote.value %}
+                            <i class="fas fa-star"></i>
+                            {% else %}
+                            <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                        <span class="ms-2 text-muted">{{ vote.value }}/5</span>
+                    </div>
+                    
+                    {% if vote.comment %}
+                    <div class="vote-comment">
+                        <i class="fas fa-quote-left me-2 small text-muted"></i>{{ vote.comment }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-votes">
+                <i class="far fa-comment-dots"></i>
+                <h4>No votes yet</h4>
+                <p>Be the first to share your opinion about this item!</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-4">
+        {% if current_user.is_authenticated %}
+        <div class="rating-form-container">
+            <h3 class="rating-form-title">Rate This Item</h3>
+            
+            {% if user_vote %}
+            <p class="rating-form-subtitle">
+                You've already rated this item. You can update your rating below.
+            </p>
+            {% else %}
+            <p class="rating-form-subtitle">
+                Share your thoughts about this item with the community.
+            </p>
+            {% endif %}
+            
+            <form method="POST" action="{{ url_for('vote', item_id=item.id) }}" id="ajax-vote-form" data-item-id="{{ item.id }}">
+                <div class="mb-4">
+                    <label class="form-label">Your Rating:</label>
+                    <div class="rating-form">
+                        {% for i in range(1, 6) %}
+                        <span class="star {% if user_vote and user_vote.value >= i %}active{% endif %}" data-value="{{ i }}">
+                            <i class="fas fa-star"></i>
+                        </span>
+                        {% endfor %}
+                    </div>
+                    <input type="hidden" id="rating-value" name="vote" value="{{ user_vote.value if user_vote else '0' }}">
+                </div>
+                <div class="mb-4">
+                    <label for="comment" class="form-label">Comment (Optional):</label>
+                    <textarea class="form-control" id="comment" name="comment" rows="4" placeholder="Share your thoughts about this item...">{{ user_vote.comment if user_vote else '' }}</textarea>
+                </div>
+                <button type="submit" class="btn btn-primary submit-btn">
+                    {% if user_vote %}
+                    <i class="fas fa-sync-alt me-2"></i> Update Rating
+                    {% else %}
+                    <i class="fas fa-paper-plane me-2"></i> Submit Rating
+                    {% endif %}
+                </button>
+            </form>
+        </div>
+        {% else %}
+        <div class="login-card">
+            <i class="fas fa-lock login-icon"></i>
+            <h5 class="login-title">Want to rate this item?</h5>
+            <p class="login-text">You need to be logged in to vote on clothing items and share your opinion with the community.</p>
+            <a href="{{ url_for('login', next=request.path) }}" class="btn btn-primary login-btn">
+                <i class="fas fa-sign-in-alt me-2"></i> Login to Vote
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize stars based on existing vote
+        const ratingValue = document.getElementById('rating-value');
+        const stars = document.querySelectorAll('.rating-form .star');
+        
+        if (ratingValue && ratingValue.value !== '0') {
+            const value = parseInt(ratingValue.value);
+            
+            stars.forEach(star => {
+                if (parseInt(star.getAttribute('data-value')) <= value) {
+                    star.classList.add('active');
+                }
+            });
+        }
+        
+        // Add hover effect for stars
+        stars.forEach(star => {
+            star.addEventListener('mouseover', function() {
+                const value = parseInt(this.getAttribute('data-value'));
+                
+                // Add hover class to this star and all stars before it
+                stars.forEach(s => {
+                    const starValue = parseInt(s.getAttribute('data-value'));
+                    if (starValue <= value) {
+                        s.classList.add('hover');
+                    } else {
+                        s.classList.remove('hover');
+                    }
+                });
+            });
+            
+            star.addEventListener('mouseout', function() {
+                // Remove hover class from all stars
+                stars.forEach(s => s.classList.remove('hover'));
+            });
+            
+            star.addEventListener('click', function() {
+                const value = parseInt(this.getAttribute('data-value'));
+                ratingValue.value = value;
+                
+                // Update active class on stars
+                stars.forEach(s => {
+                    const starValue = parseInt(s.getAttribute('data-value'));
+                    if (starValue <= value) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            });
+        });
+        
+        // Handle form submission with Ajax
+        const form = document.getElementById('ajax-vote-form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Check if rating is selected
+                if (ratingValue.value === '0') {
+                    alert('Please select a rating before submitting.');
+                    return;
+                }
+                
+                // Get form data
+                const formData = new FormData(this);
+                const itemId = this.getAttribute('data-item-id');
+                
+                // Submit using fetch API
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update UI
+                        document.getElementById('vote-score').textContent = data.new_score;
+                        document.getElementById('votes-count').textContent = data.votes_count;
+                        
+                        // Customize toast message based on new or updated
+                        const isUpdate = "{{ user_vote }}" !== "";
+                        const toastMessage = document.getElementById('toastMessage');
+                        toastMessage.textContent = isUpdate 
+                            ? 'Your rating has been successfully updated!' 
+                            : 'Your rating has been successfully submitted!';
+                        
+                        // Show toast notification
+                        const toast = document.getElementById('ratingToast');
+                        const bsToast = new bootstrap.Toast(toast, { 
+                            autohide: true,
+                            delay: 3000
+                        });
+                        bsToast.show();
+                        
+                        // If it was a new vote, update the page after toast is shown
+                        if (!isUpdate) {
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 3000);
+                        }
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while submitting your rating.');
+                });
+            });
+        }
+    });
+</script>
+{% endblock %} 

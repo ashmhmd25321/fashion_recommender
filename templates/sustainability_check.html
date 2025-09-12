@@ -1,0 +1,1163 @@
+{% extends "base.html" %}
+
+{% block title %}Check Sustainability - Fashion Recommender{% endblock %}
+
+{% block head %}
+{{ super() }}
+<!-- Add Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- Add AOS library for scroll animations -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<style>
+    :root {
+        --dark-bg: #0a0a0a;
+        --dark-bg-secondary: #161616;
+        --dark-card: #1e1e1e;
+        --dark-text: #f0f0f0;
+        --dark-text-secondary: #b0b0b0;
+        --accent-color: #4caf50;
+        --accent-secondary: #80e27e;
+        --accent-hover: #45a049;
+        --transition: all 0.3s ease;
+    }
+    
+    body.dark-mode {
+        background-color: #0a0a0a;
+        color: #ffffff;
+        background-image: 
+            radial-gradient(circle at 25% 15%, rgba(76, 175, 80, 0.05) 0%, transparent 40%),
+            radial-gradient(circle at 75% 85%, rgba(76, 175, 80, 0.05) 0%, transparent 40%);
+        background-attachment: fixed;
+    }
+    
+    body.dark-mode .check-sustainability-header {
+        background-color: var(--dark-bg-secondary);
+        padding: 5rem 0 3rem;
+        margin-bottom: 3rem;
+        border-radius: 0 0 50px 50px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    body.dark-mode .check-sustainability-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('https://images.unsplash.com/photo-1586034679970-cb7b5fc4928a?ixlib=rb-4.0.3&auto=format&fit=crop&q=80') center/cover;
+        opacity: 0.08;
+        z-index: 0;
+    }
+    
+    body.dark-mode .check-sustainability-header .container {
+        position: relative;
+        z-index: 1;
+    }
+    
+    body.dark-mode .card {
+        background-color: #0d0d0d;
+        border: none;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        border-radius: 15px;
+        overflow: hidden;
+        transition: var(--transition);
+    }
+    
+    body.dark-mode .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    }
+    
+    body.dark-mode .card-header {
+        background-color: #161616 !important;
+        border-bottom: 1px solid #333;
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    body.dark-mode .card-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(to right, var(--accent-color), transparent);
+    }
+    
+    body.dark-mode .card-title {
+        color: var(--dark-text);
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    body.dark-mode .card-title i {
+        margin-right: 12px;
+        color: var(--accent-color);
+        font-size: 1.8rem;
+    }
+    
+    body.dark-mode .card-body {
+        background-color: #0d0d0d;
+        padding: 2rem;
+        color: var(--dark-text-secondary);
+    }
+    
+    body.dark-mode .card-footer {
+        background-color: #0a0a0a;
+        border-top: 1px solid #222;
+        padding: 1.2rem 2rem;
+    }
+    
+    body.dark-mode .form-control {
+        background-color: #161616;
+        border: 1px solid #333;
+        color: var(--dark-text);
+        padding: 0.8rem 1.2rem;
+        border-radius: 10px;
+        transition: var(--transition);
+    }
+    
+    body.dark-mode .form-control:focus {
+        background-color: #1a1a1a;
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 0.25rem rgba(76, 175, 80, 0.25);
+        color: var(--dark-text);
+    }
+    
+    body.dark-mode .form-label {
+        color: var(--dark-text);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    body.dark-mode .form-label i {
+        margin-right: 10px;
+        color: var(--accent-color);
+    }
+    
+    body.dark-mode .form-text {
+        color: #777;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+    
+    body.dark-mode .btn-primary {
+        background-color: #222;
+        border-color: #333;
+        color: #ffffff;
+        transition: var(--transition);
+        padding: 0.8rem 2rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        border-radius: 10px;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+    
+    body.dark-mode .btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
+        transition: var(--transition);
+        z-index: -1;
+    }
+    
+    body.dark-mode .btn-primary:hover {
+        background-color: #333;
+        border-color: #444;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    body.dark-mode .btn-primary:hover::before {
+        left: 100%;
+    }
+    
+    body.dark-mode .btn-outline-secondary {
+        color: var(--dark-text-secondary);
+        border-color: #333;
+        background-color: transparent;
+        transition: var(--transition);
+        font-weight: 500;
+        border-radius: 10px;
+    }
+    
+    body.dark-mode .btn-outline-secondary:hover {
+        background-color: #161616;
+        border-color: #444;
+        color: var(--dark-text);
+        transform: translateY(-2px);
+    }
+    
+    body.dark-mode .text-muted {
+        color: #777 !important;
+        display: flex;
+        align-items: center;
+        font-size: 0.9rem;
+    }
+    
+    body.dark-mode .text-muted i {
+        margin-right: 8px;
+        color: var(--accent-color);
+    }
+    
+    body.dark-mode .lead {
+        color: var(--dark-text-secondary);
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+    
+    .file-upload-container {
+        position: relative;
+        background-color: #161616;
+        border: 2px dashed #333;
+        border-radius: 15px;
+        padding: 2.5rem;
+        text-align: center;
+        transition: var(--transition);
+        cursor: pointer;
+        overflow: hidden;
+    }
+    
+    .file-upload-container:hover {
+        border-color: var(--accent-color);
+        background-color: #1a1a1a;
+    }
+    
+    .file-upload-icon {
+        font-size: 3.5rem;
+        color: var(--accent-color);
+        margin-bottom: 1.5rem;
+        transition: var(--transition);
+    }
+    
+    .file-upload-container:hover .file-upload-icon {
+        transform: scale(1.1);
+        color: var(--accent-secondary);
+    }
+    
+    .file-upload-text {
+        margin-bottom: 0.5rem;
+        color: var(--dark-text);
+        font-weight: 500;
+        font-size: 1.2rem;
+    }
+    
+    .file-upload-subtext {
+        color: #777;
+        font-size: 0.9rem;
+    }
+    
+    .file-input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+    
+    .image-preview-container {
+        position: relative;
+        margin-top: 2rem;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        transform-style: preserve-3d;
+        transition: var(--transition);
+    }
+    
+    .image-preview-container:hover {
+        transform: translateY(-5px) perspective(1000px) rotateY(5deg);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    }
+    
+    .image-preview {
+        max-height: 350px;
+        width: 100%;
+        object-fit: cover;
+        border-radius: 15px;
+    }
+    
+    .preview-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .preview-overlay-text {
+        color: var(--dark-text);
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    
+    .preview-overlay-icon {
+        color: var(--accent-color);
+        font-size: 1.2rem;
+        animation: pulse 2s infinite;
+    }
+    
+    .floating-animation {
+        animation: floating 3s ease-in-out infinite;
+    }
+    
+    @keyframes floating {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-15px); }
+        100% { transform: translateY(0px); }
+    }
+    
+    @keyframes pulse {
+        0% { opacity: 0.7; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.2); }
+        100% { opacity: 0.7; transform: scale(1); }
+    }
+    
+    .process-steps {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+    }
+    
+    .process-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        flex: 1;
+    }
+    
+    .step-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #161616;
+        color: var(--accent-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        border: 2px solid #333;
+        transition: var(--transition);
+    }
+    
+    .process-step.active .step-number {
+        background-color: var(--accent-color);
+        color: white;
+        border-color: var(--accent-color);
+        box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
+    }
+    
+    .step-label {
+        color: #777;
+        font-size: 0.9rem;
+        transition: var(--transition);
+    }
+    
+    .process-step.active .step-label {
+        color: var(--dark-text);
+        font-weight: 500;
+    }
+    
+    .process-line {
+        flex: 1;
+        height: 2px;
+        background-color: #333;
+        margin: 20px 10px 0;
+    }
+    
+    .sustainability-features {
+        display: flex;
+        flex-wrap: wrap;
+        margin-top: 2rem;
+        gap: 1rem;
+    }
+    
+    .feature-item {
+        background-color: #161616;
+        border-radius: 10px;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        transition: var(--transition);
+        flex: 1 1 calc(33.333% - 1rem);
+        min-width: 180px;
+    }
+    
+    .feature-item:hover {
+        background-color: #1a1a1a;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .feature-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #0a0a0a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        flex-shrink: 0;
+    }
+    
+    .feature-icon i {
+        color: var(--accent-color);
+        font-size: 1.2rem;
+    }
+    
+    .feature-text {
+        color: var(--dark-text-secondary);
+        font-size: 0.9rem;
+    }
+    
+    /* Sustainability Results Styling */
+    body.dark-mode .results-container {
+        background-color: #0d0d0d;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-top: 2rem;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        border: 1px solid #222;
+    }
+    
+    body.dark-mode .results-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #333;
+    }
+    
+    body.dark-mode .results-icon {
+        font-size: 2.5rem;
+        color: #4caf50;
+        margin-right: 1rem;
+    }
+    
+    body.dark-mode .results-title {
+        color: #f0f0f0;
+        font-size: 1.8rem;
+        margin: 0;
+        font-weight: 600;
+    }
+    
+    body.dark-mode .sustainability-score {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        margin: 2rem 0;
+    }
+    
+    body.dark-mode .score-circle {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border: 10px solid #222;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        margin-bottom: 1rem;
+        background: #161616;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+    
+    body.dark-mode .score-circle::before {
+        content: '';
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        width: calc(100% + 20px);
+        height: calc(100% + 20px);
+        border-radius: 50%;
+        border: 10px solid transparent;
+        border-top: 10px solid #4caf50;
+        border-right: 10px solid #4caf50;
+        transform: rotate(45deg);
+    }
+    
+    body.dark-mode .score-number {
+        font-size: 3.5rem;
+        color: #ffffff;
+        font-weight: 700;
+    }
+    
+    body.dark-mode .score-label {
+        font-size: 1.1rem;
+        color: #b0b0b0;
+        margin-top: 0.5rem;
+    }
+    
+    body.dark-mode .score-description {
+        color: #d0d0d0;
+        text-align: center;
+        max-width: 500px;
+        margin: 0 auto 2rem;
+        line-height: 1.6;
+    }
+    
+    body.dark-mode .result-detail-section {
+        background-color: #161616;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid #4caf50;
+    }
+    
+    body.dark-mode .detail-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    body.dark-mode .detail-icon {
+        font-size: 1.5rem;
+        color: #4caf50;
+        margin-right: 0.8rem;
+    }
+    
+    body.dark-mode .detail-title {
+        color: #f0f0f0;
+        font-size: 1.2rem;
+        margin: 0;
+        font-weight: 600;
+    }
+    
+    body.dark-mode .analysis-factor {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.7rem 0;
+        border-bottom: 1px solid #2a2a2a;
+    }
+    
+    body.dark-mode .analysis-factor:last-child {
+        border-bottom: none;
+    }
+    
+    body.dark-mode .factor-name {
+        color: #d0d0d0;
+        display: flex;
+        align-items: center;
+    }
+    
+    body.dark-mode .factor-icon {
+        color: #4caf50;
+        margin-right: 0.5rem;
+        font-size: 1rem;
+    }
+    
+    body.dark-mode .factor-value {
+        font-weight: 600;
+        color: #f0f0f0;
+        background-color: #222;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+    }
+    
+    body.dark-mode .factor-value.high {
+        background-color: rgba(76, 175, 80, 0.3);
+        color: #8af78e;
+    }
+    
+    body.dark-mode .factor-value.medium {
+        background-color: rgba(255, 193, 7, 0.3);
+        color: #ffd557;
+    }
+    
+    body.dark-mode .factor-value.low {
+        background-color: rgba(220, 53, 69, 0.3);
+        color: #f77b8a;
+    }
+    
+    body.dark-mode .feedback-section {
+        background-color: #161616;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    body.dark-mode .feedback-title {
+        color: #f0f0f0;
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    body.dark-mode .feedback-title i {
+        color: #4caf50;
+        margin-right: 0.8rem;
+    }
+    
+    body.dark-mode .recommendation-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 0.8rem;
+        padding-bottom: 0.8rem;
+        border-bottom: 1px solid #2a2a2a;
+    }
+    
+    body.dark-mode .recommendation-item:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+    
+    body.dark-mode .recommendation-icon {
+        color: #4caf50;
+        margin-right: 0.8rem;
+        margin-top: 0.2rem;
+    }
+    
+    body.dark-mode .recommendation-text {
+        color: #d0d0d0;
+        flex: 1;
+    }
+    
+    body.dark-mode .action-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2rem;
+    }
+    
+    body.dark-mode .material-chart {
+        height: 200px;
+        background-color: #161616;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Progress bars for sustainability metrics */
+    body.dark-mode .progress-container {
+        margin-bottom: 1rem;
+    }
+    
+    body.dark-mode .progress-label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+    
+    body.dark-mode .progress-name {
+        color: #d0d0d0;
+    }
+    
+    body.dark-mode .progress-value {
+        color: #f0f0f0;
+        font-weight: 500;
+    }
+    
+    body.dark-mode .progress-bar-bg {
+        width: 100%;
+        height: 8px;
+        background-color: #222;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    body.dark-mode .progress-fill {
+        height: 100%;
+        border-radius: 4px;
+        background-color: #4caf50;
+        transition: width 1s ease-in-out;
+    }
+    
+    body.dark-mode .progress-fill.low {
+        background-color: #dc3545;
+    }
+    
+    body.dark-mode .progress-fill.medium {
+        background-color: #ffc107;
+    }
+    
+    body.dark-mode .progress-fill.high {
+        background-color: #4caf50;
+    }
+    
+    body.dark-mode .comparison-badge {
+        display: inline-block;
+        padding: 0.3rem 0.7rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        margin-left: 0.5rem;
+        font-weight: 500;
+    }
+    
+    body.dark-mode .comparison-badge.better {
+        background-color: rgba(76, 175, 80, 0.2);
+        color: #8af78e;
+    }
+    
+    body.dark-mode .comparison-badge.worse {
+        background-color: rgba(220, 53, 69, 0.2);
+        color: #f77b8a;
+    }
+    
+    body.dark-mode .comparison-badge.similar {
+        background-color: rgba(108, 117, 125, 0.2);
+        color: #c8c8c8;
+    }
+    
+    body.dark-mode .btn-analyze-again {
+        background-color: #222;
+        color: #ffffff;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    body.dark-mode .btn-analyze-again:hover {
+        background-color: #333;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Animation for result appearance */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    body.dark-mode .results-animation {
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="check-sustainability-header text-center" data-aos="fade-up">
+    <div class="container">
+        <h1 class="mb-3" style="color: #ffffff;"><i class="fas fa-seedling pulse-animation" style="color: #4caf50;"></i> Check Item Sustainability</h1>
+        <p class="lead" style="color: #d0d0d0; max-width: 700px; margin: 0 auto;">Analyze your clothing items for environmental impact and sustainability metrics without storing your data.</p>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10" data-aos="fade-up" data-aos-delay="100">
+            <div class="card" style="background-color: #0d0d0d; border: none; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);">
+                <div class="card-header" style="background-color: #161616 !important; border-bottom: 1px solid #333;">
+                    <h4 class="card-title" style="color: #f0f0f0;"><i class="fas fa-leaf" style="color: #4caf50;"></i> Sustainability Assessment</h4>
+                </div>
+                <div class="card-body" style="background-color: #0d0d0d; color: #b0b0b0;">
+                    
+                    <p class="lead mb-4" style="color: #d0d0d0;">Our model will analyze your clothing item to determine its sustainability score based on material recognition, production methods, and environmental impact factors.</p>
+                    
+                    <div class="sustainability-features mb-4">
+                        <div class="feature-item" style="background-color: #161616; border: 1px solid #222;">
+                            <div class="feature-icon" style="background-color: #0a0a0a; border: 1px solid #222;">
+                                <i class="fas fa-tshirt" style="color: #4caf50;"></i>
+                            </div>
+                            <div class="feature-text" style="color: #d0d0d0;">Recognizes fabric types</div>
+                        </div>
+                        <div class="feature-item" style="background-color: #161616; border: 1px solid #222;">
+                            <div class="feature-icon" style="background-color: #0a0a0a; border: 1px solid #222;">
+                                <i class="fas fa-recycle" style="color: #4caf50;"></i>
+                            </div>
+                            <div class="feature-text" style="color: #d0d0d0;">Evaluates recyclability</div>
+                        </div>
+                        <div class="feature-item" style="background-color: #161616; border: 1px solid #222;">
+                            <div class="feature-icon" style="background-color: #0a0a0a; border: 1px solid #222;">
+                                <i class="fas fa-water" style="color: #4caf50;"></i>
+                            </div>
+                            <div class="feature-text" style="color: #d0d0d0;">Estimates water usage</div>
+                        </div>
+                        <div class="feature-item" style="background-color: #161616; border: 1px solid #222;">
+                            <div class="feature-icon" style="background-color: #0a0a0a; border: 1px solid #222;">
+                                <i class="fas fa-globe-americas" style="color: #4caf50;"></i>
+                            </div>
+                            <div class="feature-text" style="color: #d0d0d0;">Carbon footprint analysis</div>
+                        </div>
+                        <div class="feature-item" style="background-color: #161616; border: 1px solid #222;">
+                            <div class="feature-icon" style="background-color: #0a0a0a; border: 1px solid #222;">
+                                <i class="fas fa-clock" style="color: #4caf50;"></i>
+                            </div>
+                            <div class="feature-text" style="color: #d0d0d0;">Durability assessment</div>
+                        </div>
+                        <div class="feature-item" style="background-color: #161616; border: 1px solid #222;">
+                            <div class="feature-icon" style="background-color: #0a0a0a; border: 1px solid #222;">
+                                <i class="fas fa-award" style="color: #4caf50;"></i>
+                            </div>
+                            <div class="feature-text" style="color: #d0d0d0;">Certifications check</div>
+                        </div>
+                    </div>
+                    
+                    <form action="{{ url_for('sustainability_check') }}" method="post" enctype="multipart/form-data" class="mt-4">
+                        <div class="mb-4">
+                            <label for="file" class="form-label d-none">Select a clothing image</label>
+                            
+                            <div class="file-upload-container" style="background-color: #161616; border: 2px dashed #333;">
+                                <i class="fas fa-cloud-upload-alt file-upload-icon floating-animation" style="color: #4caf50;"></i>
+                                <h5 class="file-upload-text" style="color: #f0f0f0;">Drag & drop your image here</h5>
+                                <p class="file-upload-subtext" style="color: #777;">or click to browse files (JPG, PNG, JPEG)</p>
+                                <input class="file-input" type="file" id="file" name="file" required accept="image/*" onchange="previewImage(this)">
+                        </div>
+                        
+                            <div id="imagePreview" class="d-none">
+                                <div class="image-preview-container" style="box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);">
+                                    <img id="preview" src="#" alt="Image Preview" class="image-preview">
+                                    <div class="preview-overlay" style="background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);">
+                                        <span class="preview-overlay-text" style="color: #f0f0f0;">Ready for analysis</span>
+                                        <i class="fas fa-check-circle preview-overlay-icon" style="color: #4caf50;"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary" style="background-color: #222; border-color: #333; color: #ffffff;"><i class="fas fa-search me-2"></i>Analyze Sustainability</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer" style="background-color: #0a0a0a; border-top: 1px solid #222;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{{ url_for('sustainability') }}" class="btn btn-outline-secondary" style="color: #d0d0d0; border-color: #333; background-color: transparent;">
+                            <i class="fas fa-arrow-left me-1"></i> Back to Sustainability
+                        </a>
+                        <span class="text-muted" style="color: #777 !important;"><i class="fas fa-shield-alt" style="color: #4caf50;"></i> Your privacy is protected - no images are stored</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-md-6" data-aos="fade-up" data-aos-delay="200">
+                    <div class="card h-100" style="background-color: #0d0d0d; border: none; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);">
+                        <div class="card-body text-center p-4" style="background-color: #0d0d0d;">
+                            <div style="width: 70px; height: 70px; margin: 0 auto 1rem; background-color: #161616; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+                                <i class="fas fa-lightbulb" style="font-size: 2rem; color: #4caf50;"></i>
+                            </div>
+                            <h5 style="color: #ffffff;">How It Works</h5>
+                            <p style="color: #b0b0b0;">Our advanced model identifies materials, production methods, and sustainability factors by analyzing visual features of your clothing item.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6" data-aos="fade-up" data-aos-delay="300">
+                    <div class="card h-100" style="background-color: #0d0d0d; border: none; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);">
+                        <div class="card-body text-center p-4" style="background-color: #0d0d0d;">
+                            <div style="width: 70px; height: 70px; margin: 0 auto 1rem; background-color: #161616; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+                                <i class="fas fa-lock" style="font-size: 2rem; color: #4caf50;"></i>
+                            </div>
+                            <h5 style="color: #ffffff;">Privacy Focused</h5>
+                            <p style="color: #b0b0b0;">We process images in real-time without storing them. Your fashion choices remain private while still getting accurate sustainability insights.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AOS Animation JS -->
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Ensure body and html elements have dark background
+        document.body.style.backgroundColor = '#0a0a0a';
+        document.documentElement.style.backgroundColor = '#0a0a0a';
+        
+        // Force dark mode class on body
+        if (!document.body.classList.contains('dark-mode')) {
+            document.body.classList.add('dark-mode');
+        }
+        
+        // Initialize AOS animations
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+        
+        // Add drag and drop functionality
+        const dropArea = document.querySelector('.file-upload-container');
+        const fileInput = document.querySelector('.file-input');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            dropArea.style.borderColor = '#4caf50';
+            dropArea.style.backgroundColor = '#1a1a1a';
+        }
+        
+        function unhighlight() {
+            dropArea.style.borderColor = '#333';
+            dropArea.style.backgroundColor = '#161616';
+        }
+        
+        dropArea.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            
+            if (files.length) {
+                fileInput.files = files;
+                previewImage(fileInput);
+            }
+        }
+    });
+    
+    function previewImage(input) {
+        const preview = document.getElementById('preview');
+        const previewContainer = document.getElementById('imagePreview');
+        const uploadContainer = document.querySelector('.file-upload-container');
+        const processSteps = document.querySelectorAll('.process-step');
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                previewContainer.classList.remove('d-none');
+                uploadContainer.style.display = 'none';
+                
+                // Update process steps
+                processSteps[0].classList.add('active');
+                setTimeout(() => {
+                    processSteps[1].classList.add('active');
+                }, 800);
+            }
+            
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            preview.src = '#';
+            previewContainer.classList.add('d-none');
+            uploadContainer.style.display = 'block';
+            
+            // Reset process steps
+            processSteps.forEach((step, index) => {
+                if (index > 0) step.classList.remove('active');
+            });
+        }
+    }
+</script>
+
+<!-- Add this code where the results should appear (right after the form) -->
+{% if analysis_results %}
+<div class="results-container results-animation" data-aos="fade-up">
+    <div class="results-header">
+        <i class="fas fa-chart-line results-icon"></i>
+        <h2 class="results-title">Sustainability Analysis Results</h2>
+    </div>
+    
+    <div class="sustainability-score">
+        <div class="score-circle">
+            <div class="score-number">{{ analysis_results.score|default('4.2') }}</div>
+        </div>
+        <div class="score-label">Sustainability Score</div>
+        <p class="score-description">
+            This item has {{ analysis_results.rating|default('good') }} sustainability metrics. The score is based on material composition, production process, and environmental impact.
+        </p>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="result-detail-section">
+                <div class="detail-header">
+                    <i class="fas fa-tshirt detail-icon"></i>
+                    <h3 class="detail-title">Material Composition</h3>
+                </div>
+                <div class="analysis-factor">
+                    <div class="factor-name">
+                        <i class="fas fa-leaf factor-icon"></i>
+                        Organic Cotton
+                    </div>
+                    <div class="factor-value high">65%</div>
+                </div>
+                <div class="analysis-factor">
+                    <div class="factor-name">
+                        <i class="fas fa-leaf factor-icon"></i>
+                        Recycled Polyester
+                    </div>
+                    <div class="factor-value medium">30%</div>
+                </div>
+                <div class="analysis-factor">
+                    <div class="factor-name">
+                        <i class="fas fa-leaf factor-icon"></i>
+                        Elastane
+                    </div>
+                    <div class="factor-value low">5%</div>
+                </div>
+            </div>
+            
+            <div class="result-detail-section">
+                <div class="detail-header">
+                    <i class="fas fa-industry detail-icon"></i>
+                    <h3 class="detail-title">Production Impact</h3>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span class="progress-name">Water Usage</span>
+                        <span class="progress-value">Medium
+                            <span class="comparison-badge better">15% better than average</span>
+                        </span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-fill medium" style="width: 65%"></div>
+                    </div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span class="progress-name">Carbon Footprint</span>
+                        <span class="progress-value">Low
+                            <span class="comparison-badge better">30% better than average</span>
+                        </span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-fill high" style="width: 85%"></div>
+                    </div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span class="progress-name">Chemical Usage</span>
+                        <span class="progress-value">Medium
+                            <span class="comparison-badge similar">Similar to average</span>
+                        </span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-fill medium" style="width: 55%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="result-detail-section">
+                <div class="detail-header">
+                    <i class="fas fa-recycle detail-icon"></i>
+                    <h3 class="detail-title">Lifecycle Assessment</h3>
+                </div>
+                <div class="analysis-factor">
+                    <div class="factor-name">
+                        <i class="fas fa-clock factor-icon"></i>
+                        Durability
+                    </div>
+                    <div class="factor-value high">High</div>
+                </div>
+                <div class="analysis-factor">
+                    <div class="factor-name">
+                        <i class="fas fa-recycle factor-icon"></i>
+                        Recyclability
+                    </div>
+                    <div class="factor-value medium">Medium</div>
+                </div>
+                <div class="analysis-factor">
+                    <div class="factor-name">
+                        <i class="fas fa-leaf factor-icon"></i>
+                        Biodegradability
+                    </div>
+                    <div class="factor-value medium">Partial</div>
+                </div>
+                <div class="analysis-factor">
+                    <div class="factor-name">
+                        <i class="fas fa-tint factor-icon"></i>
+                        Washing Impact
+                    </div>
+                    <div class="factor-value high">Low Impact</div>
+                </div>
+            </div>
+            
+            <div class="feedback-section">
+                <h3 class="feedback-title">
+                    <i class="fas fa-lightbulb"></i>
+                    Sustainability Recommendations
+                </h3>
+                <div class="recommendation-item">
+                    <i class="fas fa-check-circle recommendation-icon"></i>
+                    <div class="recommendation-text">Wash in cold water to preserve fabric and reduce energy consumption.</div>
+                </div>
+                <div class="recommendation-item">
+                    <i class="fas fa-check-circle recommendation-icon"></i>
+                    <div class="recommendation-text">Air dry instead of using a dryer to extend the item's lifespan.</div>
+                </div>
+                <div class="recommendation-item">
+                    <i class="fas fa-check-circle recommendation-icon"></i>
+                    <div class="recommendation-text">Consider recycling programs for this item at the end of its lifecycle.</div>
+                </div>
+                <div class="recommendation-item">
+                    <i class="fas fa-check-circle recommendation-icon"></i>
+                    <div class="recommendation-text">Look for similar items with higher percentage of organic materials in the future.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="action-buttons">
+        <a href="{{ url_for('sustainability_check') }}" class="btn btn-analyze-again">
+            <i class="fas fa-redo-alt me-2"></i>Analyze Another Item
+        </a>
+        <a href="{{ url_for('sustainability') }}" class="btn btn-outline-secondary" style="color: #d0d0d0; border-color: #333; background-color: transparent;">
+            <i class="fas fa-arrow-left me-1"></i>Back to Sustainability Guide
+        </a>
+    </div>
+</div>
+
+<script>
+    // Animate progress bars on load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Small delay for better visual effect
+        setTimeout(() => {
+            const progressBars = document.querySelectorAll('.progress-fill');
+            progressBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 300);
+            });
+        }, 500);
+    });
+</script>
+{% endif %}
+{% endblock %} 

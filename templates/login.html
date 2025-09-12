@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Fashion Recommender</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            background-color: #121212;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .go-back {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #f8f9fa;
+            text-decoration: none;
+            font-size: 0.9rem;
+            padding: 5px 10px;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+        .go-back:hover {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <a href="{{ url_for('index') }}" class="go-back">
+        <i class="fas fa-arrow-left me-1"></i> Back to Home
+    </a>
+
+    <div class="auth-page">
+        <div class="auth-container">
+            <div class="auth-header">
+                <i class="fas fa-user-circle auth-icon"></i>
+                <h2>Sign In</h2>
+            </div>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} mb-3">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST" class="auth-form" id="loginForm">
+                <div class="auth-input-group">
+                    <input type="text" id="username" name="username" placeholder="Username" required>
+                    <i class="fas fa-user"></i>
+                </div>
+                
+                <div class="auth-input-group">
+                    <input type="password" id="password" name="password" placeholder="Password" required>
+                    <i class="fas fa-lock"></i>
+                </div>
+                
+                <div class="auth-remember">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">Remember me</label>
+                </div>
+                
+                <button type="submit" class="auth-btn">
+                    Sign In <i class="fas fa-sign-in-alt ms-2"></i>
+                </button>
+            </form>
+            
+            <div class="auth-footer">
+                <p>Don't have an account? <a href="{{ url_for('register') }}">Create Account</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/auth-animation.js') }}"></script>
+    <script>
+        // This script will handle redirecting admin users to the admin dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('loginForm');
+            
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Get form data
+                const formData = new FormData(loginForm);
+                const username = formData.get('username');
+                const password = formData.get('password');
+                
+                try {
+                    // Submit the form data
+                    const response = await fetch('{{ url_for("login") }}', {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'same-origin'
+                    });
+                    
+                    // Check if the response is a redirect
+                    if (response.redirected) {
+                        // If the user is admin, redirect to admin dashboard
+                        if (username.toLowerCase() === 'admin') {
+                            window.location.href = 'http://localhost:5001/admin';
+                        } else {
+                            // Otherwise, follow the normal redirect
+                            window.location.href = response.url;
+                        }
+                    } else {
+                        // If not redirected, just reload the page to show any flash messages
+                        window.location.reload();
+                    }
+                } catch (error) {
+                    console.error('Error during login:', error);
+                    // Just submit the form normally if there's an error with the fetch
+                    loginForm.submit();
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,530 @@
+{% extends "base.html" %}
+
+{% block title %}Fashion Recommender - Home{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background-color: #121212;
+        color: #f8f9fa;
+    }
+    
+    .navbar {
+        background-color: #1a1a1a !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .hero {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80');
+        background-size: cover;
+        background-position: center;
+        height: 80vh;
+        display: flex;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .hero::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 150px;
+        background: linear-gradient(to top, #121212, transparent);
+        z-index: 1;
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .hero h1 {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(45deg, #6a11cb, #2575fc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    .hero .lead {
+        font-size: 1.3rem;
+        margin-bottom: 2rem;
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .hero-btn {
+        background: linear-gradient(45deg, #6a11cb, #2575fc);
+        border: none;
+        padding: 12px 30px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 30px;
+        box-shadow: 0 4px 15px rgba(106, 17, 203, 0.4);
+        transition: all 0.3s ease;
+    }
+    
+    .hero-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(106, 17, 203, 0.5);
+    }
+    
+    .hero-btn i {
+        margin-left: 8px;
+    }
+    
+    .feature-section {
+        padding: 5rem 0;
+        background-color: #1a1a1a;
+    }
+    
+    .section-heading {
+        text-align: center;
+        margin-bottom: 3rem;
+        position: relative;
+        padding-bottom: 1rem;
+    }
+    
+    .section-heading::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 3px;
+        background: linear-gradient(45deg, #6a11cb, #2575fc);
+    }
+    
+    .feature-card {
+        background-color: #232323;
+        border-radius: 10px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        height: 100%;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        border-color: rgba(106, 17, 203, 0.3);
+    }
+    
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(45deg, #6a11cb22, #2575fc22);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        margin: 0 auto 1.5rem;
+    }
+    
+    .feature-icon i {
+        font-size: 2.5rem;
+        background: linear-gradient(45deg, #6a11cb, #2575fc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .feature-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: #fff;
+    }
+    
+    .feature-card p {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.95rem;
+    }
+    
+    .items-section {
+        padding: 5rem 0;
+        background-color: #121212;
+    }
+    
+    .card {
+        background-color: #232323;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        border-color: rgba(106, 17, 203, 0.3);
+    }
+    
+    .card-img-top {
+        height: 250px;
+        object-fit: cover;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    .card-title {
+        color: #fff;
+        font-size: 1.25rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .sustainability-score {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1rem;
+        z-index: 1;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .score-1, .score-2 {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .score-3 {
+        background-color: #fd7e14;
+        color: white;
+    }
+    
+    .score-4, .score-5 {
+        background-color: #28a745;
+        color: white;
+    }
+    
+    .rating {
+        margin-bottom: 1rem;
+    }
+    
+    .rating .fas {
+        color: #ffc107;
+    }
+    
+    .rating .far {
+        color: rgba(255, 255, 255, 0.2);
+    }
+    
+    .rating .text-muted {
+        color: rgba(255, 255, 255, 0.6) !important;
+    }
+    
+    .btn-outline-primary {
+        border-color: #6a11cb;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+    
+    .btn-outline-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 100%;
+        background: linear-gradient(45deg, #6a11cb, #2575fc);
+        transition: all 0.4s;
+        z-index: -1;
+    }
+    
+    .btn-outline-primary:hover {
+        color: #fff;
+        border-color: transparent;
+    }
+    
+    .btn-outline-primary:hover::before {
+        width: 100%;
+    }
+    
+    .alert-info {
+        background-color: rgba(106, 17, 203, 0.1);
+        border-color: rgba(106, 17, 203, 0.2);
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    /* Enhanced responsive design for index page */
+    @media (max-width: 768px) {
+        .hero {
+            height: 60vh;
+            min-height: 400px;
+        }
+        
+        .hero h1 {
+            font-size: 2.2rem;
+            line-height: 1.2;
+        }
+        
+        .hero .lead {
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .hero-btn {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 1rem;
+        }
+        
+        .feature-section, .items-section {
+            padding: 2.5rem 0;
+        }
+        
+        .feature-card {
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+        }
+        
+        .feature-icon i {
+            font-size: 2rem;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.3rem;
+        }
+        
+        .card-img-top {
+            height: 200px;
+        }
+        
+        .section-heading {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .hero {
+            height: 50vh;
+            min-height: 350px;
+            padding: 20px 0;
+        }
+        
+        .hero h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .hero .lead {
+            font-size: 0.95rem;
+            margin-bottom: 1.2rem;
+        }
+        
+        .hero-content {
+            padding: 1rem;
+        }
+        
+        .feature-section, .items-section {
+            padding: 2rem 0;
+        }
+        
+        .feature-card {
+            padding: 1.5rem;
+        }
+        
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-icon i {
+            font-size: 1.8rem;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .feature-card p {
+            font-size: 0.9rem;
+        }
+        
+        .card-img-top {
+            height: 180px;
+        }
+        
+        .card-body {
+            padding: 1rem;
+        }
+        
+        .card-title {
+            font-size: 1.1rem;
+        }
+        
+        .section-heading {
+            font-size: 1.6rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .sustainability-score {
+            width: 35px;
+            height: 35px;
+            font-size: 0.9rem;
+        }
+    }
+    
+    @media (max-width: 400px) {
+        .hero h1 {
+            font-size: 1.6rem;
+        }
+        
+        .hero .lead {
+            font-size: 0.9rem;
+        }
+        
+        .feature-card {
+            padding: 1rem;
+        }
+        
+        .card-img-top {
+            height: 160px;
+        }
+    }
+    
+    /* Landscape orientation for mobile */
+    @media (max-height: 500px) and (orientation: landscape) {
+        .hero {
+            height: 100vh;
+            padding: 10px 0;
+        }
+        
+        .hero h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .hero .lead {
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hero-content {
+            padding: 0.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <div class="hero-content">
+        <h1>Discover Sustainable Fashion</h1>
+        <p class="lead">Find clothing that matches your style while making environmentally conscious choices</p>
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('sustainability_check') }}" class="btn btn-primary hero-btn">
+            Check Sustainability <i class="fas fa-leaf"></i>
+        </a>
+        {% else %}
+        <a href="{{ url_for('login') }}" class="btn btn-primary hero-btn">
+            Login to Get Started <i class="fas fa-arrow-right"></i>
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<section class="feature-section">
+    <div class="container">
+        <h2 class="section-heading text-white">Our Features</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card p-4 text-center">
+                    <div class="feature-icon">
+                        <i class="fas fa-tshirt"></i>
+                    </div>
+                    <h3>Fashion Recommendations</h3>
+                    <p>Upload your favorite clothing items and get personalized recommendations based on your style preferences and sustainability metrics.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card p-4 text-center">
+                    <div class="feature-icon">
+                        <i class="fas fa-vote-yea"></i>
+                    </div>
+                    <h3>Community Voting</h3>
+                    <p>Join our community to vote on clothing items and discover what others think about different fashion choices and sustainability ratings.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card p-4 text-center">
+                    <div class="feature-icon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <h3>Sustainability Check</h3>
+                    <p>Learn about the sustainability impact of different clothing items and make informed choices that are better for the environment.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="items-section">
+    <div class="container">
+        <h2 class="section-heading text-white">Featured Items</h2>
+        <div class="row g-4">
+            {% if featured_items %}
+                {% for item in featured_items %}
+                <div class="col-md-4 col-lg-3">
+                    <div class="card h-100">
+                        <div class="sustainability-score score-{{ item.sustainability_score|int }}">
+                            {{ item.sustainability_score }}
+                        </div>
+                        <img src="{{ url_for('static', filename=item.image_path|normalize_path) }}" class="card-img-top" alt="{{ item.name }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ item.name }}</h5>
+                            <div class="rating">
+                                {% set score = item.get_vote_score()|int %}
+                                {% for i in range(5) %}
+                                    {% if i < score %}
+                                    <i class="fas fa-star"></i>
+                                    {% else %}
+                                    <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <span class="text-muted ms-2">({{ item.votes.count() }})</span>
+                            </div>
+                            <a href="{{ url_for('item_details', item_id=item.id) }}" class="btn btn-outline-primary w-100">View Details</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> No items available yet. Be the first to upload a clothing item!
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %} 

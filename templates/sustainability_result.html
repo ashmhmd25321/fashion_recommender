@@ -1,0 +1,464 @@
+{% extends "base.html" %}
+
+{% block title %}Sustainability Results - Fashion Recommender{% endblock %}
+
+{% block head %}
+{{ super() }}
+<!-- Add Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- Add AOS library for scroll animations -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<style>
+    :root {
+        --dark-bg: #0a0a0a;
+        --dark-bg-secondary: #161616;
+        --dark-card: #1e1e1e;
+        --dark-text: #f0f0f0;
+        --dark-text-secondary: #b0b0b0;
+        --accent-color: #4caf50;
+        --accent-secondary: #80e27e;
+        --accent-hover: #45a049;
+        --transition: all 0.3s ease;
+    }
+    
+    body.dark-mode {
+        background-color: #0a0a0a;
+        color: #ffffff;
+        background-image: 
+            radial-gradient(circle at 25% 15%, rgba(76, 175, 80, 0.05) 0%, transparent 40%),
+            radial-gradient(circle at 75% 85%, rgba(76, 175, 80, 0.05) 0%, transparent 40%);
+        background-attachment: fixed;
+    }
+    
+    body.dark-mode .card {
+        background-color: #0d0d0d;
+        border: none;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        border-radius: 15px;
+        overflow: hidden;
+        transition: var(--transition);
+    }
+    
+    body.dark-mode .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    }
+    
+    body.dark-mode .card-header {
+        background-color: #161616 !important;
+        border-bottom: 1px solid #333;
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    body.dark-mode .card-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(to right, var(--accent-color), transparent);
+    }
+    
+    body.dark-mode .card-title {
+        color: var(--dark-text);
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    body.dark-mode .card-body {
+        background-color: #0d0d0d;
+        padding: 2rem;
+        color: var(--dark-text-secondary);
+    }
+    
+    body.dark-mode .card-footer {
+        background-color: #0a0a0a;
+        border-top: 1px solid #222;
+        padding: 1.2rem 2rem;
+    }
+    
+    body.dark-mode h5 {
+        color: var(--dark-text);
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    
+    body.dark-mode .text-muted {
+        color: #888 !important;
+    }
+    
+    body.dark-mode .lead {
+        color: var(--accent-color);
+        font-weight: 500;
+    }
+    
+    body.dark-mode .progress {
+        background-color: #222;
+        border-radius: 10px;
+        height: 10px;
+        overflow: hidden;
+    }
+    
+    body.dark-mode .progress-bar {
+        background-color: var(--accent-color);
+        background-image: linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%, transparent);
+        background-size: 1rem 1rem;
+    }
+    
+    body.dark-mode .score-display {
+        color: var(--dark-text);
+    }
+    
+    body.dark-mode .recommendation {
+        background-color: #161616 !important;
+        border-left: 4px solid var(--accent-color);
+        padding: 1.5rem !important;
+        border-radius: 10px !important;
+    }
+    
+    body.dark-mode .recommendation h5 {
+        color: var(--accent-color);
+        margin-bottom: 0.8rem;
+    }
+    
+    body.dark-mode .recommendation p {
+        color: var(--dark-text-secondary);
+    }
+    
+    body.dark-mode .btn-outline-primary {
+        color: #ffffff;
+        border-color: #333;
+        background-color: transparent;
+        transition: var(--transition);
+        font-weight: 500;
+        border-radius: 10px;
+    }
+    
+    body.dark-mode .btn-outline-primary:hover {
+        background-color: #222;
+        border-color: #444;
+        color: var(--dark-text);
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    body.dark-mode .btn-secondary {
+        background-color: #222;
+        border-color: #333;
+        color: #ffffff;
+        transition: var(--transition);
+        font-weight: 500;
+        border-radius: 10px;
+    }
+    
+    body.dark-mode .btn-secondary:hover {
+        background-color: #333;
+        border-color: #444;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    body.dark-mode .img-fluid {
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        transition: var(--transition);
+    }
+    
+    body.dark-mode .img-fluid:hover {
+        transform: scale(1.02);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    }
+    
+    body.dark-mode .factor-card {
+        background-color: #161616;
+        border-radius: 12px;
+        border: none;
+        overflow: hidden;
+        transition: var(--transition);
+        height: 100%;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    body.dark-mode .factor-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+    
+    body.dark-mode .factor-card .card-body {
+        background-color: #161616;
+        padding: 1.5rem;
+    }
+    
+    body.dark-mode .factor-card .card-title {
+        color: var(--dark-text);
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    body.dark-mode .factor-card .card-title::before {
+        content: "\f3dd";
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        color: var(--accent-color);
+        margin-right: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    body.dark-mode .factor-card .card-text {
+        color: var(--dark-text-secondary);
+        font-size: 0.9rem;
+    }
+    
+    body.dark-mode .factor-card .text-end {
+        color: #888;
+        font-size: 0.8rem;
+    }
+    
+    body.dark-mode .highlight-text {
+        color: var(--accent-color);
+        font-weight: 500;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    body.dark-mode .animate-fade-in {
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+    
+    html.dark-bg {
+        background-color: #0a0a0a !important;
+        min-height: 100%;
+    }
+    
+    /* Force dark mode on any elements that might override it */
+    .bg-white, .bg-light {
+        background-color: #0d0d0d !important;
+    }
+    
+    .text-dark {
+        color: #e0e0e0 !important;
+    }
+    
+    /* Add subtle texture to the background for visual interest */
+    body.dark-mode::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23222222' fill-opacity='0.4' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E");
+        opacity: 0.3;
+        z-index: -1;
+        pointer-events: none;
+    }
+    
+    /* Ensure tables have dark background */
+    body.dark-mode table {
+        background-color: #161616;
+        color: #d0d0d0;
+    }
+    
+    body.dark-mode table th {
+        background-color: #222;
+    }
+    
+    body.dark-mode table td {
+        border-color: #333;
+    }
+    
+    /* Ensure any overlays or modals have dark background */
+    .modal-content {
+        background-color: #161616 !important;
+        color: #e0e0e0 !important;
+    }
+    
+    /* Fix any potential light inputs */
+    input, textarea, select {
+        background-color: #222 !important;
+        color: #e0e0e0 !important;
+        border-color: #444 !important;
+    }
+    
+    input:focus, textarea:focus, select:focus {
+        background-color: #2a2a2a !important;
+        color: #ffffff !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10" data-aos="fade-up">
+            <div class="card animate-fade-in">
+                <div class="card-header">
+                    <h4 class="card-title">
+                        <i class="fas fa-leaf me-2" style="color: #4caf50;"></i>
+                        Sustainability Assessment Results
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="text-center mb-4">
+                                <div style="position: relative; overflow: hidden; border-radius: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);">
+                                    <img src="{{ url_for('static', filename=image_path) }}" alt="Assessed Item" class="img-fluid" style="max-height: 350px; width: 100%; object-fit: contain;">
+                                    <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 1rem; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); text-align: left;">
+                                        <span style="color: #e0e0e0; font-size: 0.9rem;">
+                                            <i class="fas fa-check-circle me-1" style="color: #4caf50;"></i> Analysis Complete
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="mb-4">
+                                <h5>
+                                    <i class="fas fa-star-half-alt me-2" style="color: #4caf50;"></i>
+                                    Overall Sustainability Score
+                                </h5>
+                                <div class="d-flex align-items-center">
+                                    <div class="score-display me-3">
+                                        <span class="display-4 fw-bold" style="color: #4caf50;">{{ sustainability.score }}</span>
+                                        <span class="text-muted">/5</span>
+                                    </div>
+                                    <div class="progress flex-grow-1" style="height: 30px; background-color: #222;">
+                                        <div class="progress-bar" role="progressbar" 
+                                             style="width: {{ (sustainability.score / 5) * 100 }}%; background-color: #4caf50;" 
+                                             aria-valuenow="{{ sustainability.score }}" aria-valuemin="0" aria-valuemax="5">
+                                            {{ sustainability.score }}/5
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h5>
+                                    <i class="fas fa-tshirt me-2" style="color: #4caf50;"></i>
+                                    Identified Material
+                                </h5>
+                                <p class="lead">{{ sustainability.material|capitalize }}</p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h5>
+                                    <i class="fas fa-clipboard-list me-2" style="color: #4caf50;"></i>
+                                    Assessment Notes
+                                </h5>
+                                <p style="color: #d0d0d0;">{{ sustainability.notes }}</p>
+                            </div>
+                            
+                            <div class="recommendation">
+                                <h5>
+                                    <i class="fas fa-lightbulb me-2"></i>
+                                    Recommendation
+                                </h5>
+                                <p class="mb-0">{{ sustainability.recommendation }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-5">
+                        <h5 class="mb-4">
+                            <i class="fas fa-balance-scale me-2" style="color: #4caf50;"></i>
+                            Sustainability Factors
+                        </h5>
+                        <div class="row">
+                            {% for factor in factors %}
+                            <div class="col-md-6 mb-3" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
+                                <div class="factor-card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">{{ factor.name }}</h6>
+                                        <p class="card-text small">{{ factor.description }}</p>
+                                        <div class="progress" style="height: 10px; background-color: #222;">
+                                            <div class="progress-bar" role="progressbar" 
+                                                 style="width: {{ (factor.weight / 1.5) * 100 }}%; background-color: #4caf50;" 
+                                                 aria-valuenow="{{ factor.weight }}" aria-valuemin="0" aria-valuemax="1.5">
+                                            </div>
+                                        </div>
+                                        <div class="text-end small mt-1">Weight: <span class="highlight-text">{{ factor.weight }}</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('sustainability_check') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-redo me-1"></i> Check Another Item
+                        </a>
+                        <a href="{{ url_for('sustainability') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Back to Sustainability
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AOS Animation JS -->
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Ensure body and html elements have dark background
+        document.body.style.backgroundColor = '#0a0a0a';
+        document.documentElement.style.backgroundColor = '#0a0a0a';
+        document.querySelector('html').classList.add('dark-bg');
+        
+        // Force dark mode class on body
+        if (!document.body.classList.contains('dark-mode')) {
+            document.body.classList.add('dark-mode');
+        }
+        
+        // Add dark-bg class to main containers
+        document.querySelectorAll('.container, .container-fluid').forEach(container => {
+            container.style.backgroundColor = 'transparent';
+        });
+        
+        // Ensure all card backgrounds are properly set
+        document.querySelectorAll('.card').forEach(card => {
+            card.style.backgroundColor = '#0d0d0d';
+        });
+        
+        // Initialize AOS animations
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+        
+        // Animate progress bars
+        setTimeout(() => {
+            const progressBars = document.querySelectorAll('.progress-bar');
+            progressBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 300);
+            });
+        }, 500);
+    });
+</script>
+{% endblock %} 

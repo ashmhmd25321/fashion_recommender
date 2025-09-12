@@ -1,0 +1,833 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Ratings - Fashion Recommender{% endblock %}
+
+{% block extra_css %}
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<style>
+    :root {
+        --dark-bg: #121212;
+        --dark-surface: #1e1e1e;
+        --dark-surface-2: #252525;
+        --dark-surface-3: #2d2d2d;
+        --dark-border: #333333;
+        --dark-text-primary: rgba(255, 255, 255, 0.87);
+        --dark-text-secondary: rgba(255, 255, 255, 0.6);
+        --dark-text-disabled: rgba(255, 255, 255, 0.38);
+        
+        --primary-color: #6a11cb;
+        --primary-light: #8d4bdd;
+        --primary-gradient: linear-gradient(45deg, #6a11cb, #2575fc);
+        --success-gradient: linear-gradient(45deg, #28a745, #20c997);
+        --info-gradient: linear-gradient(45deg, #17a2b8, #00d2ff);
+        --warning-gradient: linear-gradient(45deg, #ffc107, #ff9900);
+        --danger-gradient: linear-gradient(45deg, #dc3545, #ff6373);
+        
+        --card-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        --card-hover-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+        --transition: all 0.3s ease;
+    }
+    
+    body {
+        background-color: var(--dark-bg);
+        color: var(--dark-text-primary);
+        background-image: 
+            radial-gradient(circle at 25% 25%, rgba(106, 17, 203, 0.05) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(37, 117, 252, 0.05) 0%, transparent 50%);
+        background-attachment: fixed;
+    }
+    
+    /* Page Header */
+    .page-header {
+        position: relative;
+        padding: 2.5rem 0;
+        margin-bottom: 2rem;
+        overflow: hidden;
+        border-radius: 16px;
+        background: linear-gradient(145deg, #232323, #1e1e1e);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: var(--card-shadow);
+    }
+    
+    .page-header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 200px;
+        height: 100%;
+        background-image: url('https://images.unsplash.com/photo-1572460418164-31458ec56758?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80');
+        background-size: cover;
+        background-position: center;
+        opacity: 0.1;
+        mask-image: linear-gradient(to left, rgba(0,0,0,1), rgba(0,0,0,0));
+        -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1), rgba(0,0,0,0));
+    }
+    
+    .page-header-content {
+        position: relative;
+        z-index: 1;
+        padding: 0 2rem;
+    }
+    
+    .page-title {
+        margin: 0;
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: inline-block;
+    }
+    
+    .page-subtitle {
+        color: var(--dark-text-secondary);
+        margin-top: 0.5rem;
+        font-size: 1.1rem;
+    }
+    
+    /* Stats Cards */
+    .stats-row {
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background-color: var(--dark-surface);
+        border-radius: 16px;
+        padding: 1.5rem;
+        height: 100%;
+        box-shadow: var(--card-shadow);
+        transition: var(--transition);
+        border: 1px solid var(--dark-border);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--card-hover-shadow);
+        border-color: rgba(106, 17, 203, 0.3);
+    }
+    
+    .stat-card::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: var(--warning-gradient);
+        transform: scaleX(0);
+        transform-origin: bottom right;
+        transition: transform 0.5s ease;
+    }
+    
+    .stat-card:hover::after {
+        transform: scaleX(1);
+        transform-origin: bottom left;
+    }
+    
+    .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: #ffc107;
+        text-shadow: 0 0 15px rgba(255, 193, 7, 0.3);
+    }
+    
+    .stat-value {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--dark-text-primary);
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        color: var(--dark-text-secondary);
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    /* Ratings Table Card */
+    .ratings-card {
+        background-color: var(--dark-surface);
+        border-radius: 16px;
+        border: 1px solid var(--dark-border);
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        margin-bottom: 2rem;
+    }
+    
+    .ratings-card-header {
+        background-color: var(--dark-surface-2);
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--dark-border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .ratings-card-header h4 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--dark-text-primary);
+        display: flex;
+        align-items: center;
+    }
+    
+    .ratings-card-header h4 i {
+        margin-right: 0.7rem;
+        color: #ffc107;
+        font-size: 1.2rem;
+    }
+    
+    /* Ratings Table */
+    .ratings-table {
+        margin-bottom: 0;
+    }
+    
+    .ratings-table th {
+        background-color: var(--dark-surface-2);
+        color: var(--dark-text-primary);
+        font-weight: 600;
+        border-top: none;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--dark-border);
+    }
+    
+    .ratings-table td {
+        padding: 0.75rem 1.5rem;
+        vertical-align: middle;
+        color: var(--dark-text-secondary);
+        border-bottom: 1px solid var(--dark-border);
+    }
+    
+    .ratings-table tr {
+        transition: var(--transition);
+    }
+    
+    .ratings-table tbody tr:hover {
+        background-color: var(--dark-surface-2);
+    }
+    
+    /* Avatar */
+    .avatar-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.2rem;
+        position: relative;
+        transition: var(--transition);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .avatar-admin {
+        background: var(--primary-gradient);
+    }
+    
+    .avatar-customer {
+        background: linear-gradient(45deg, #616161, #9e9e9e);
+    }
+    
+    .ratings-table tr:hover .avatar-circle {
+        transform: scale(1.1);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .avatar-circle::after {
+        content: '';
+        position: absolute;
+        top: -2px;
+        right: -2px;
+        bottom: -2px;
+        left: -2px;
+        border-radius: 50%;
+        border: 2px solid transparent;
+        background: var(--primary-gradient) border-box;
+        -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .ratings-table tr:hover .avatar-circle::after {
+        opacity: 1;
+    }
+    
+    /* Username */
+    .username {
+        font-weight: 600;
+        color: var(--dark-text-primary);
+        margin-left: 1rem;
+        transition: var(--transition);
+    }
+    
+    .ratings-table tr:hover .username {
+        color: white;
+    }
+    
+    /* Product Image */
+    .product-img {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 10px;
+        transition: var(--transition);
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--dark-border);
+    }
+    
+    .ratings-table tr:hover .product-img {
+        transform: scale(1.1);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .product-name {
+        margin-left: 0.75rem;
+        font-weight: 500;
+        color: var(--dark-text-primary);
+        transition: var(--transition);
+    }
+    
+    .ratings-table tr:hover .product-name {
+        color: white;
+    }
+    
+    /* Star Rating */
+    .star-rating {
+        display: flex;
+        align-items: center;
+    }
+    
+    .star-rating .fas {
+        color: #ffc107;
+        margin-right: 2px;
+        transition: var(--transition);
+    }
+    
+    .star-rating .far {
+        color: rgba(255, 255, 255, 0.2);
+        margin-right: 2px;
+    }
+    
+    .ratings-table tr:hover .star-rating .fas {
+        transform: rotate(-5deg) scale(1.2);
+        color: #ffdb58;
+    }
+    
+    /* Comment */
+    .comment-text {
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        padding: 0.35rem 0.75rem;
+        background-color: var(--dark-surface-3);
+        border-radius: 8px;
+        transition: var(--transition);
+    }
+    
+    .ratings-table tr:hover .comment-text {
+        background-color: rgba(255, 193, 7, 0.1);
+        color: var(--dark-text-primary);
+    }
+    
+    .no-comment {
+        color: var(--dark-text-disabled);
+        font-style: italic;
+    }
+    
+    /* Date */
+    .date-rated {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .date-rated i {
+        color: #ffc107;
+    }
+    
+    /* Action Buttons */
+    .action-btn {
+        padding: 0.5rem;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        transition: var(--transition);
+        background-color: var(--dark-surface-3);
+        color: var(--dark-text-primary);
+        border: 1px solid var(--dark-border);
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-3px);
+    }
+    
+    .action-btn.view:hover {
+        background-color: rgba(37, 117, 252, 0.2);
+        color: #2575fc;
+        border-color: rgba(37, 117, 252, 0.3);
+    }
+    
+    .action-btn.delete:hover {
+        background-color: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+        border-color: rgba(220, 53, 69, 0.3);
+    }
+    
+    /* Pagination */
+    .pagination {
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .pagination .page-link {
+        color: var(--dark-text-secondary);
+        background-color: var(--dark-surface-2);
+        border-color: var(--dark-border);
+        transition: var(--transition);
+        margin: 0 3px;
+        border-radius: 8px;
+    }
+    
+    .pagination .page-link:hover {
+        background-color: var(--dark-surface-3);
+        color: var(--dark-text-primary);
+        transform: translateY(-2px);
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .pagination .page-item.active .page-link {
+        background: var(--warning-gradient);
+        border-color: transparent;
+        color: white;
+        box-shadow: 0 3px 10px rgba(255, 193, 7, 0.3);
+    }
+    
+    .pagination .page-item.disabled .page-link {
+        color: var(--dark-text-disabled);
+        background-color: var(--dark-surface);
+        border-color: var(--dark-border);
+    }
+    
+    /* Modal */
+    .modal-content {
+        background-color: var(--dark-surface);
+        border: 1px solid var(--dark-border);
+        border-radius: 16px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    }
+    
+    .modal-header {
+        border-bottom: 1px solid var(--dark-border);
+        background-color: var(--dark-surface-2);
+        padding: 1.25rem 1.5rem;
+    }
+    
+    .modal-title {
+        color: var(--dark-text-primary);
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .modal-title i {
+        color: #dc3545;
+    }
+    
+    .modal-body {
+        padding: 1.75rem 1.5rem;
+        color: var(--dark-text-secondary);
+    }
+    
+    .modal-footer {
+        border-top: 1px solid var(--dark-border);
+        padding: 1.25rem 1.5rem;
+        background-color: var(--dark-surface-2);
+    }
+    
+    .delete-alert {
+        padding: 1rem;
+        border-radius: 8px;
+        background-color: rgba(220, 53, 69, 0.1);
+        border-left: 4px solid #dc3545;
+        margin-top: 1rem;
+    }
+    
+    .btn-cancel {
+        background-color: var(--dark-surface-3);
+        color: var(--dark-text-primary);
+        border: 1px solid var(--dark-border);
+        transition: var(--transition);
+    }
+    
+    .btn-cancel:hover {
+        background-color: var(--dark-surface-2);
+        color: white;
+    }
+    
+    .btn-delete {
+        background: var(--danger-gradient);
+        color: white;
+        border: none;
+        transition: var(--transition);
+    }
+    
+    .btn-delete:hover {
+        box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+        transform: translateY(-2px);
+    }
+    
+    /* Empty State */
+    .empty-state {
+        padding: 3rem;
+        text-align: center;
+        border-radius: 12px;
+        background-color: var(--dark-surface-2);
+        border: 1px dashed var(--dark-border);
+    }
+    
+    .empty-state i {
+        font-size: 3.5rem;
+        margin-bottom: 1.5rem;
+        color: var(--dark-text-disabled);
+    }
+    
+    .empty-state h4 {
+        color: var(--dark-text-primary);
+        margin-bottom: 1rem;
+    }
+    
+    .empty-state p {
+        color: var(--dark-text-secondary);
+        max-width: 500px;
+        margin: 0 auto 1.5rem;
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes pulseGlow {
+        0% {
+            box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(255, 193, 7, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+        }
+    }
+    
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+    
+    /* Fix for modal close button */
+    .btn-close {
+        filter: invert(1) grayscale(100%) brightness(200%);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Page Header -->
+    <div class="page-header mb-4" data-aos="fade-up">
+        <div class="page-header-content">
+            <h1 class="page-title">
+                <i class="fas fa-star me-3"></i>Manage Ratings
+            </h1>
+            <p class="page-subtitle">View and manage the decentralized voting system for fashion items</p>
+        </div>
+    </div>
+
+    <!-- Rating Stats -->
+    <div class="row stats-row">
+        <div class="col-md-4 mb-4 mb-md-0" data-aos="fade-up" data-aos-delay="100">
+            <div class="stat-card">
+                <i class="fas fa-star-half-alt stat-icon"></i>
+                <div class="stat-value">{{ votes.total }}</div>
+                <div class="stat-label">Total Ratings</div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4 mb-md-0" data-aos="fade-up" data-aos-delay="200">
+            <div class="stat-card">
+                <i class="fas fa-star stat-icon"></i>
+                <div class="stat-value">{{ "%.1f"|format(votes.items|map(attribute='value')|list|sum / votes.total if votes.total > 0 else 0) }}</div>
+                <div class="stat-label">Average Rating</div>
+            </div>
+        </div>
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+            <div class="stat-card">
+                <i class="fas fa-comment-alt stat-icon"></i>
+                <div class="stat-value">{{ votes.items|selectattr('comment')|list|length }}</div>
+                <div class="stat-label">Comments</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ratings Table -->
+    <div class="ratings-card" data-aos="fade-up" data-aos-delay="100">
+        <div class="ratings-card-header">
+            <h4><i class="fas fa-star"></i> Item Ratings</h4>
+            <span class="badge rounded-pill" style="background: var(--warning-gradient);">{{ votes.total }} Total Ratings</span>
+        </div>
+        
+        {% if votes.items %}
+        <div class="table-responsive">
+            <table class="table ratings-table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Product</th>
+                        <th>Rating</th>
+                        <th>Comment</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for vote in votes.items %}
+                    <tr data-aos="fade-up" data-aos-delay="{{ loop.index * 50 }}">
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-circle {{ 'avatar-admin' if vote.voter.is_admin() else 'avatar-customer' }}">
+                                    {{ vote.voter.username[0].upper() }}
+                                </div>
+                                <span class="username">{{ vote.voter.username }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <img src="{{ url_for('static', filename=vote.item.image_path|normalize_path) }}" 
+                                     alt="{{ vote.item.name }}" class="product-img">
+                                <span class="product-name">{{ vote.item.name }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="star-rating">
+                                {% for i in range(5) %}
+                                    {% if i < vote.value %}
+                                    <i class="fas fa-star"></i>
+                                    {% else %}
+                                    <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <span class="ms-2">({{ vote.value }})</span>
+                            </div>
+                        </td>
+                        <td>
+                            {% if vote.comment %}
+                            <div class="comment-text">{{ vote.comment }}</div>
+                            {% else %}
+                            <span class="no-comment">No comment</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="date-rated">
+                                <i class="far fa-calendar-alt"></i>
+                                {{ vote.created_at.strftime('%d %b %Y') }}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a href="{{ url_for('item_details', item_id=vote.item.id) }}" class="action-btn view" data-bs-toggle="tooltip" title="View Item">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button type="button" class="action-btn delete" data-bs-toggle="tooltip" title="Delete Rating"
+                                    onclick="confirmDelete('{{ url_for('admin_rating_delete', vote_id=vote.id) }}', '{{ vote.voter.username }}', '{{ vote.item.name }}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if votes.pages > 1 %}
+        <div class="d-flex justify-content-center">
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    {% if votes.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('admin_ratings', page=votes.prev_num) }}" aria-label="Previous">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" aria-label="Previous">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page_num in votes.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                        {% if page_num %}
+                            {% if page_num == votes.page %}
+                            <li class="page-item active">
+                                <a class="page-link" href="{{ url_for('admin_ratings', page=page_num) }}">{{ page_num }}</a>
+                            </li>
+                            {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin_ratings', page=page_num) }}">{{ page_num }}</a>
+                            </li>
+                            {% endif %}
+                        {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#">...</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if votes.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('admin_ratings', page=votes.next_num) }}" aria-label="Next">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" aria-label="Next">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+        
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-star"></i>
+            <h4>No ratings found</h4>
+            <p>There are no ratings in the system yet. As users rate fashion items, their feedback will appear here.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="fas fa-exclamation-triangle"></i> Confirm Delete
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this rating? This action cannot be undone.</p>
+                <div class="delete-alert">
+                    <p class="mb-0 fw-bold" id="deleteDetails"></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i> Cancel
+                </button>
+                <form id="deleteForm" method="POST">
+                    <button type="submit" class="btn btn-delete">
+                        <i class="fas fa-trash me-1"></i> Delete Rating
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize AOS animations
+        AOS.init({
+            duration: 800,
+            easing: 'ease-out',
+            once: true
+        });
+        
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+        
+        // Function to confirm deletion
+        window.confirmDelete = function(url, username, itemName) {
+            document.getElementById('deleteForm').action = url;
+            document.getElementById('deleteDetails').textContent = `Rating by ${username} for "${itemName}"`;
+            var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            deleteModal.show();
+        }
+        
+        // Add counter animation to stat numbers
+        const statValues = document.querySelectorAll('.stat-value');
+        statValues.forEach(statValue => {
+            const finalValue = parseFloat(statValue.innerText);
+            let startValue = 0;
+            const duration = 1500;
+            
+            // Save the final value for reference
+            const savedFinalValue = finalValue;
+            
+            // Start at 0
+            statValue.innerText = '0';
+            
+            // Animate the counter
+            let startTime = null;
+            
+            function animate(currentTime) {
+                if (!startTime) startTime = currentTime;
+                const elapsedTime = currentTime - startTime;
+                const progress = Math.min(elapsedTime / duration, 1);
+                
+                // If it's a decimal value (average rating)
+                if (savedFinalValue % 1 !== 0) {
+                    statValue.innerText = (progress * savedFinalValue).toFixed(1);
+                } else {
+                    statValue.innerText = Math.floor(progress * savedFinalValue);
+                }
+                
+                if (progress < 1) {
+                    window.requestAnimationFrame(animate);
+                }
+            }
+            
+            window.requestAnimationFrame(animate);
+        });
+    });
+</script>
+{% endblock %} 

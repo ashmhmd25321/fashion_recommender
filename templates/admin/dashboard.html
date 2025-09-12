@@ -1,0 +1,741 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Fashion Recommender{% endblock %}
+
+{% block extra_css %}
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<style>
+    :root {
+        --dark-bg: #121212;
+        --dark-surface: #1e1e1e;
+        --dark-surface-2: #252525;
+        --dark-surface-3: #2d2d2d;
+        --dark-border: #333333;
+        --dark-text-primary: rgba(255, 255, 255, 0.87);
+        --dark-text-secondary: rgba(255, 255, 255, 0.6);
+        --dark-text-disabled: rgba(255, 255, 255, 0.38);
+        
+        --primary-color: #6a11cb;
+        --primary-light: #8d4bdd;
+        --primary-gradient: linear-gradient(45deg, #6a11cb, #2575fc);
+        --success-gradient: linear-gradient(45deg, #28a745, #20c997);
+        --info-gradient: linear-gradient(45deg, #17a2b8, #00d2ff);
+        --warning-gradient: linear-gradient(45deg, #ffc107, #ff9900);
+        --danger-gradient: linear-gradient(45deg, #dc3545, #ff6373);
+        
+        --card-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        --card-hover-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+        --transition: all 0.3s ease;
+    }
+    
+    body {
+        background-color: var(--dark-bg);
+        color: var(--dark-text-primary);
+        background-image: 
+            radial-gradient(circle at 25% 25%, rgba(106, 17, 203, 0.05) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(37, 117, 252, 0.05) 0%, transparent 50%);
+        background-attachment: fixed;
+    }
+    
+    .dashboard-header {
+        position: relative;
+        padding: 2.5rem 0;
+        margin-bottom: 3rem;
+        border-bottom: 1px solid var(--dark-border);
+        overflow: hidden;
+    }
+    
+    .dashboard-header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 250px;
+        height: 100%;
+        background-image: url('https://images.unsplash.com/photo-1543163521-1bf539c55dd2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1600&q=80');
+        background-size: cover;
+        background-position: center;
+        opacity: 0.1;
+        mask-image: linear-gradient(to left, rgba(0,0,0,1), rgba(0,0,0,0));
+        -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1), rgba(0,0,0,0));
+    }
+    
+    .dashboard-header h1 {
+        margin: 0;
+        font-size: 2.5rem;
+        font-weight: 700;
+        position: relative;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: inline-block;
+    }
+    
+    .dashboard-header p {
+        color: var(--dark-text-secondary);
+        margin-top: 0.5rem;
+        font-size: 1.1rem;
+    }
+    
+    /* Stat Cards */
+    .stat-card {
+        border-radius: 16px;
+        border: none;
+        padding: 0;
+        overflow: hidden;
+        position: relative;
+        box-shadow: var(--card-shadow);
+        transition: var(--transition);
+        height: 100%;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--card-hover-shadow);
+    }
+    
+    .stat-card.primary {
+        background: var(--primary-gradient);
+    }
+    
+    .stat-card.success {
+        background: var(--success-gradient);
+    }
+    
+    .stat-card.info {
+        background: var(--info-gradient);
+    }
+    
+    .stat-card-body {
+        position: relative;
+        z-index: 1;
+        padding: 1.8rem;
+    }
+    
+    .stat-card-pattern {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 150px;
+        opacity: 0.1;
+        background-size: cover;
+        background-position: center;
+        mask-image: linear-gradient(to left, rgba(0,0,0,1), rgba(0,0,0,0));
+        -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1), rgba(0,0,0,0));
+        transition: var(--transition);
+    }
+    
+    .stat-card:hover .stat-card-pattern {
+        transform: scale(1.1);
+        opacity: 0.15;
+    }
+    
+    .stat-card-pattern.products {
+        background-image: url('https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80');
+    }
+    
+    .stat-card-pattern.users {
+        background-image: url('https://images.unsplash.com/photo-1543269664-56d93c1b41a6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80');
+    }
+    
+    .stat-card-pattern.ratings {
+        background-image: url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80');
+    }
+    
+    .stat-card-title {
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+        color: rgba(255, 255, 255, 0.9);
+        position: relative;
+        display: inline-block;
+    }
+    
+    .stat-card-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.8rem;
+        color: white;
+        display: flex;
+        align-items: flex-end;
+    }
+    
+    .stat-card-trend {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.8);
+        margin-left: 0.75rem;
+        margin-bottom: 0.35rem;
+    }
+    
+    .stat-card-trend.up {
+        color: #a5f3c4;
+    }
+    
+    .stat-card-trend.down {
+        color: #ffbdbd;
+    }
+    
+    .stat-card-icon {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 2.5rem;
+        color: rgba(255, 255, 255, 0.2);
+        transition: var(--transition);
+    }
+    
+    .stat-card:hover .stat-card-icon {
+        transform: scale(1.2) rotate(10deg);
+        color: rgba(255, 255, 255, 0.3);
+    }
+    
+    .stat-card-link {
+        color: rgba(255, 255, 255, 0.85);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        font-weight: 500;
+        margin-top: 1rem;
+        transition: var(--transition);
+    }
+    
+    .stat-card-link i {
+        margin-left: 0.5rem;
+        transition: transform 0.2s ease;
+    }
+    
+    .stat-card:hover .stat-card-link {
+        color: white;
+    }
+    
+    .stat-card:hover .stat-card-link i {
+        transform: translateX(3px);
+    }
+    
+    /* Action Cards */
+    .action-card {
+        background-color: var(--dark-surface);
+        border-radius: 16px;
+        border: 1px solid var(--dark-border);
+        overflow: hidden;
+        transition: var(--transition);
+        box-shadow: var(--card-shadow);
+    }
+    
+    .action-card:hover {
+        box-shadow: var(--card-hover-shadow);
+        border-color: rgba(106, 17, 203, 0.3);
+    }
+    
+    .action-card-header {
+        background-color: var(--dark-surface-2);
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--dark-border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .action-card-header h4 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--dark-text-primary);
+        display: flex;
+        align-items: center;
+    }
+    
+    .action-card-header h4 i {
+        margin-right: 0.7rem;
+        color: var(--primary-light);
+        font-size: 1.2rem;
+    }
+    
+    .action-card-body {
+        padding: 1.75rem 1.5rem;
+        background-color: var(--dark-surface);
+    }
+    
+    /* Buttons */
+    .btn-action {
+        border-radius: 12px;
+        padding: 0.625rem 1.25rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        border: none;
+        z-index: 1;
+    }
+    
+    .btn-action::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(-100%);
+        transition: all 0.3s ease;
+        z-index: -1;
+    }
+    
+    .btn-action:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .btn-action:hover::before {
+        transform: translateX(0);
+    }
+    
+    .btn-action i {
+        margin-right: 0.5rem;
+        font-size: 1rem;
+        transition: transform 0.2s ease;
+    }
+    
+    .btn-action:hover i {
+        transform: translateY(-2px);
+    }
+    
+    .btn-action.btn-primary {
+        background: var(--primary-gradient);
+        color: white;
+    }
+    
+    .btn-action.btn-success {
+        background: var(--success-gradient);
+        color: white;
+    }
+    
+    .btn-action.btn-info {
+        background: var(--info-gradient);
+        color: white;
+    }
+    
+    .btn-action.btn-warning {
+        background: var(--warning-gradient);
+        color: white;
+    }
+    
+    /* Recent Products Table */
+    .products-table {
+        background-color: var(--dark-surface);
+        border-radius: 16px;
+        border: 1px solid var(--dark-border);
+        overflow: hidden;
+        transition: var(--transition);
+        box-shadow: var(--card-shadow);
+    }
+    
+    .products-table:hover {
+        box-shadow: var(--card-hover-shadow);
+        border-color: rgba(106, 17, 203, 0.3);
+    }
+    
+    .products-table-header {
+        background-color: var(--dark-surface-2);
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--dark-border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .products-table-header h4 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--dark-text-primary);
+        display: flex;
+        align-items: center;
+    }
+    
+    .products-table-header h4 i {
+        margin-right: 0.7rem;
+        color: var(--primary-light);
+    }
+    
+    .products-table .table {
+        margin-bottom: 0;
+        color: var(--dark-text-secondary);
+    }
+    
+    .products-table .table th {
+        background-color: var(--dark-surface-2);
+        color: var(--dark-text-primary);
+        font-weight: 600;
+        border-top: none;
+        border-bottom: 1px solid var(--dark-border);
+        padding: 1rem 1.5rem;
+    }
+    
+    .products-table .table td {
+        border-color: var(--dark-border);
+        vertical-align: middle;
+        padding: 1rem 1.5rem;
+    }
+    
+    .products-table .table tr {
+        transition: var(--transition);
+    }
+    
+    .products-table .table tbody tr:hover {
+        background-color: var(--dark-surface-2);
+    }
+    
+    .product-img {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 12px;
+        border: 1px solid var(--dark-border);
+        background-color: var(--dark-surface-3);
+        transition: var(--transition);
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .products-table .table tbody tr:hover .product-img {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .product-name {
+        font-weight: 600;
+        color: var(--dark-text-primary);
+    }
+    
+    .badge-sustainability {
+        font-size: 0.8rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 50px;
+        font-weight: 600;
+    }
+    
+    .badge-danger {
+        background: var(--danger-gradient);
+        color: white;
+    }
+    
+    .badge-warning {
+        background: var(--warning-gradient);
+        color: white;
+    }
+    
+    .badge-success {
+        background: var(--success-gradient);
+        color: white;
+    }
+    
+    .btn-table-action {
+        padding: 0.375rem 0.75rem;
+        border-radius: 8px;
+        transition: var(--transition);
+    }
+    
+    .btn-table-action:hover {
+        transform: translateY(-2px);
+    }
+    
+    /* Delete Modal */
+    .modal-content {
+        background-color: var(--dark-surface);
+        border: 1px solid var(--dark-border);
+        border-radius: 16px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    }
+    
+    .modal-header {
+        border-bottom: 1px solid var(--dark-border);
+        background-color: var(--dark-surface-2);
+        padding: 1.25rem 1.5rem;
+    }
+    
+    .modal-title {
+        color: var(--dark-text-primary);
+        font-weight: 600;
+    }
+    
+    .modal-body {
+        padding: 1.75rem 1.5rem;
+        color: var(--dark-text-secondary);
+    }
+    
+    .modal-footer {
+        border-top: 1px solid var(--dark-border);
+        padding: 1.25rem 1.5rem;
+        background-color: var(--dark-surface-2);
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes pulseGlow {
+        0% {
+            box-shadow: 0 0 0 0 rgba(106, 17, 203, 0.4);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(106, 17, 203, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(106, 17, 203, 0);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Dashboard Header -->
+    <header class="dashboard-header" data-aos="fade-down">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1><i class="fas fa-tachometer-alt me-3"></i>Admin Dashboard</h1>
+                <p>Welcome back! Here's what's happening with your fashion recommender system today.</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-5">
+        <div class="col-md-4 mb-4 mb-md-0" data-aos="fade-up" data-aos-delay="100">
+            <div class="stat-card primary">
+                <div class="stat-card-pattern products"></div>
+                <div class="stat-card-body">
+                    <div class="stat-card-icon">
+                        <i class="fas fa-tshirt"></i>
+                    </div>
+                    <div class="stat-card-title">Total Products</div>
+                    <div class="stat-card-value">
+                        {{ items_count }}
+                        <span class="stat-card-trend up">
+                            <i class="fas fa-arrow-up"></i> 12%
+                        </span>
+                    </div>
+                    <a href="{{ url_for('admin_products') }}" class="stat-card-link">
+                        Manage Products <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4 mb-md-0" data-aos="fade-up" data-aos-delay="200">
+            <div class="stat-card success">
+                <div class="stat-card-pattern users"></div>
+                <div class="stat-card-body">
+                    <div class="stat-card-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-card-title">Total Users</div>
+                    <div class="stat-card-value">
+                        {{ users_count }}
+                        <span class="stat-card-trend up">
+                            <i class="fas fa-arrow-up"></i> 8%
+                        </span>
+                    </div>
+                    <a href="{{ url_for('admin_users') }}" class="stat-card-link">
+                        Manage Users <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+            <div class="stat-card info">
+                <div class="stat-card-pattern ratings"></div>
+                <div class="stat-card-body">
+                    <div class="stat-card-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="stat-card-title">Total Ratings</div>
+                    <div class="stat-card-value">
+                        {{ votes_count }}
+                        <span class="stat-card-trend up">
+                            <i class="fas fa-arrow-up"></i> 24%
+                        </span>
+                    </div>
+                    <a href="{{ url_for('admin_ratings') }}" class="stat-card-link">
+                        Manage Ratings <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-5">
+        <div class="col-12" data-aos="fade-up">
+            <div class="action-card">
+                <div class="action-card-header">
+                    <h4><i class="fas fa-bolt"></i> Quick Actions</h4>
+                </div>
+                <div class="action-card-body">
+                    <div class="d-flex flex-wrap gap-3">
+                        <a href="{{ url_for('admin_product_create') }}" class="btn btn-action btn-primary">
+                            <i class="fas fa-plus-circle"></i> Add New Product
+                        </a>
+                        <a href="{{ url_for('admin_users') }}" class="btn btn-action btn-info">
+                            <i class="fas fa-user-plus"></i> Manage Users
+                        </a>
+                        <a href="{{ url_for('admin_ratings') }}" class="btn btn-action btn-warning">
+                            <i class="fas fa-star"></i> Review Ratings
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Products -->
+    <div class="row mb-4">
+        <div class="col-12" data-aos="fade-up" data-aos-delay="100">
+            <div class="products-table">
+                <div class="products-table-header">
+                    <h4><i class="fas fa-box-open"></i> Recent Products</h4>
+                    <a href="{{ url_for('admin_products') }}" class="btn btn-sm" style="background: var(--primary-gradient); color: white; border-radius: 8px; padding: 0.4rem 0.8rem;">
+                        View All <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Name</th>
+                                <th>Sustainability</th>
+                                <th>Date Added</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in recent_items %}
+                            <tr data-aos="fade-up" data-aos-delay="{{ loop.index * 50 }}">
+                                <td>
+                                    <img src="{{ url_for('static', filename=item.image_path) }}" alt="{{ item.name }}" 
+                                        class="product-img">
+                                </td>
+                                <td>
+                                    <span class="product-name">{{ item.name }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-sustainability badge-{% if item.sustainability_score < 2.5 %}danger{% elif item.sustainability_score < 3.5 %}warning{% else %}success{% endif %}">
+                                        <i class="fas fa-leaf me-1"></i> {{ item.sustainability_score }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <i class="far fa-calendar-alt me-1 text-muted"></i> {{ item.created_at.strftime('%d %b %Y') }}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('item_details', item_id=item.id) }}" class="btn btn-table-action" style="background-color: var(--dark-surface-3); color: var(--dark-text-primary);">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('admin_product_edit', item_id=item.id) }}" class="btn btn-table-action" style="background-color: var(--dark-surface-3); color: var(--dark-text-primary);">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-table-action" style="background-color: rgba(220, 53, 69, 0.2); color: #ff6b6b;"
+                                            onclick="confirmDelete('{{ url_for('admin_product_delete', item_id=item.id) }}', '{{ item.name }}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="fas fa-exclamation-triangle text-danger me-2"></i> Confirm Delete
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this product? This action cannot be undone.</p>
+                <div class="alert" style="background-color: var(--dark-surface-3); border-left: 4px solid #ff6b6b; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                    <p class="mb-0 fw-bold" id="deleteItemName"></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" style="background-color: var(--dark-surface-3); color: var(--dark-text-primary);" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i> Cancel
+                </button>
+                <form id="deleteForm" method="POST">
+                    <button type="submit" class="btn" style="background: var(--danger-gradient); color: white;">
+                        <i class="fas fa-trash me-1"></i> Delete Product
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize AOS animations
+        AOS.init({
+            duration: 800,
+            easing: 'ease-out',
+            once: true
+        });
+        
+        // Function to confirm deletion
+        window.confirmDelete = function(url, name) {
+            document.getElementById('deleteForm').action = url;
+            document.getElementById('deleteItemName').textContent = name;
+            var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            deleteModal.show();
+        }
+        
+        // Add pulsing animation to primary action button
+        const primaryActionBtn = document.querySelector('.btn-action.btn-primary');
+        setInterval(() => {
+            primaryActionBtn.style.animation = 'pulseGlow 2s infinite';
+            setTimeout(() => {
+                primaryActionBtn.style.animation = '';
+            }, 2000);
+        }, 5000);
+        
+        // Add counter animation to stat numbers
+        const statValues = document.querySelectorAll('.stat-card-value');
+        statValues.forEach(statValue => {
+            const finalValue = parseInt(statValue.innerText);
+            let startValue = 0;
+            let duration = 2000;
+            let counter = setInterval(function() {
+                startValue += Math.ceil(finalValue / (duration / 20));
+                if(startValue > finalValue) {
+                    statValue.innerHTML = `${finalValue}<span class="${statValue.querySelector('span').className}">${statValue.querySelector('span').textContent}</span>`;
+                    clearInterval(counter);
+                }
+                statValue.textContent = startValue;
+            }, 20);
+        });
+    });
+</script>
+{% endblock %} 

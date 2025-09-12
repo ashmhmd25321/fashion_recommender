@@ -1,0 +1,594 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Fashion Recommender{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-header {
+        background: linear-gradient(135deg, #232323 0%, #1a1a1a 100%);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .dashboard-header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 300px;
+        height: 100%;
+        background-image: url('https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80');
+        background-size: cover;
+        background-position: center;
+        opacity: 0.15;
+        mask-image: linear-gradient(to left, rgba(0,0,0,1), rgba(0,0,0,0));
+        -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1), rgba(0,0,0,0));
+    }
+    
+    .dashboard-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(45deg, #6a11cb, #2575fc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .dashboard-header p {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1.1rem;
+        max-width: 70%;
+    }
+    
+    .stat-card {
+        background: linear-gradient(145deg, #1e1e1e, #292929);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+        border-color: rgba(106, 17, 203, 0.3);
+    }
+    
+    .stat-card::after {
+        content: "";
+        position: absolute;
+        width: 150px;
+        height: 150px;
+        background: linear-gradient(45deg, #6a11cb10, #2575fc10);
+        border-radius: 50%;
+        bottom: -70px;
+        right: -70px;
+    }
+    
+    .stat-card i {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+        display: inline-block;
+    }
+    
+    .stat-card .text-primary {
+        background: linear-gradient(45deg, #6a11cb, #2575fc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .stat-card .text-success {
+        background: linear-gradient(45deg, #00c853, #64dd17);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .stat-card .text-info {
+        background: linear-gradient(45deg, #00b0ff, #00e5ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .stat-card h3 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        color: #fff;
+    }
+    
+    .stat-card p {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.95rem;
+        margin-bottom: 0;
+    }
+    
+    .section-heading {
+        position: relative;
+        padding-bottom: 0.75rem;
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+        color: #fff;
+        display: flex;
+        align-items: center;
+    }
+    
+    .section-heading::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(45deg, #6a11cb, #2575fc);
+    }
+    
+    .section-heading i {
+        margin-right: 0.75rem;
+        background: linear-gradient(45deg, #6a11cb, #2575fc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .card {
+        background-color: #232323;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        border-color: rgba(106, 17, 203, 0.3);
+    }
+    
+    .card-img-top {
+        height: 240px;
+        object-fit: cover;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .btn-upload {
+        background: linear-gradient(45deg, #6a11cb, #2575fc);
+        border: none;
+        padding: 0.65rem 1.25rem;
+        font-weight: 600;
+        border-radius: 30px;
+        box-shadow: 0 4px 15px rgba(106, 17, 203, 0.4);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-upload:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(106, 17, 203, 0.5);
+    }
+    
+    .votes-card {
+        background-color: #232323;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .votes-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        border-color: rgba(106, 17, 203, 0.3);
+    }
+    
+    .votes-card .img-fluid {
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .votes-card .col-md-4 {
+        max-height: 200px;
+        overflow: hidden;
+    }
+    
+    .vote-comment {
+        background-color: #2a2a2a;
+        border-radius: 8px;
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
+        border-left: 3px solid #6a11cb;
+    }
+    
+    .rating {
+        margin-bottom: 0.75rem;
+    }
+    
+    .rating .fas {
+        color: #ffc107;
+    }
+    
+    .rating .far {
+        color: rgba(255, 255, 255, 0.2);
+    }
+    
+    .alert-info {
+        background-color: rgba(106, 17, 203, 0.1);
+        border-color: rgba(106, 17, 203, 0.2);
+        color: rgba(255, 255, 255, 0.8);
+        border-radius: 8px;
+    }
+    
+    .alert-info a {
+        color: #6a11cb;
+        font-weight: 600;
+        text-decoration: none;
+    }
+    
+    .alert-info a:hover {
+        text-decoration: underline;
+    }
+    
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem;
+        text-align: center;
+        background-color: #232323;
+        border-radius: 12px;
+        border: 1px dashed rgba(255, 255, 255, 0.2);
+    }
+    
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.6;
+    }
+    
+    .empty-state h4 {
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    
+    .empty-state p {
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 1.5rem;
+        max-width: 400px;
+    }
+    
+    /* Enhanced responsive design for dashboard */
+    @media (max-width: 768px) {
+        .dashboard-header {
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .dashboard-header h1 {
+            font-size: 2rem;
+        }
+        
+        .dashboard-header p {
+            font-size: 1rem;
+            max-width: 100%;
+        }
+        
+        .stat-card {
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-card h3 {
+            font-size: 1.6rem;
+        }
+        
+        .stat-card i {
+            font-size: 2.2rem;
+        }
+        
+        .section-heading {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .card-img-top {
+            height: 200px;
+        }
+        
+        .votes-card .col-md-4 {
+            max-height: 150px;
+        }
+        
+        .btn-upload {
+            width: 100%;
+            margin-top: 1rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .dashboard-header {
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .dashboard-header h1 {
+            font-size: 1.6rem;
+        }
+        
+        .dashboard-header p {
+            font-size: 0.9rem;
+        }
+        
+        .stat-card {
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .stat-card h3 {
+            font-size: 1.4rem;
+        }
+        
+        .stat-card i {
+            font-size: 1.8rem;
+        }
+        
+        .stat-card p {
+            font-size: 0.85rem;
+        }
+        
+        .section-heading {
+            font-size: 1.2rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .section-heading i {
+            font-size: 1.1rem;
+        }
+        
+        .card-img-top {
+            height: 180px;
+        }
+        
+        .card-body {
+            padding: 1rem;
+        }
+        
+        .card-title {
+            font-size: 1.1rem;
+        }
+        
+        .votes-card .col-md-4 {
+            max-height: 120px;
+        }
+        
+        .votes-card .card-body {
+            padding: 0.8rem;
+        }
+        
+        .vote-comment {
+            padding: 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .empty-state {
+            padding: 2rem 1rem;
+        }
+        
+        .empty-state i {
+            font-size: 2.5rem;
+        }
+        
+        .empty-state h4 {
+            font-size: 1.2rem;
+        }
+        
+        .empty-state p {
+            font-size: 0.9rem;
+            max-width: 100%;
+        }
+        
+        .btn-upload {
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
+        }
+    }
+    
+    @media (max-width: 400px) {
+        .dashboard-header h1 {
+            font-size: 1.4rem;
+        }
+        
+        .stat-card h3 {
+            font-size: 1.2rem;
+        }
+        
+        .card-img-top {
+            height: 160px;
+        }
+        
+        .votes-card .col-md-4 {
+            max-height: 100px;
+        }
+    }
+    
+    /* Landscape orientation for mobile */
+    @media (max-height: 500px) and (orientation: landscape) {
+        .dashboard-header {
+            padding: 0.8rem;
+        }
+        
+        .dashboard-header h1 {
+            font-size: 1.4rem;
+        }
+        
+        .dashboard-header p {
+            font-size: 0.85rem;
+        }
+        
+        .stat-card {
+            padding: 0.8rem;
+        }
+        
+        .stat-card h3 {
+            font-size: 1.2rem;
+        }
+        
+        .stat-card i {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1>Welcome, {{ current_user.username }}</h1>
+    <p>Manage your fashion items, track your sustainability impact, and see your contribution to the community.</p>
+</div>
+
+<div class="row dashboard-stats mb-5">
+    <div class="col-md-4">
+        <div class="stat-card">
+            <i class="fas fa-tshirt text-primary"></i>
+            <h3>{{ items|length }}</h3>
+            <p>ITEMS UPLOADED</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <i class="fas fa-vote-yea text-success"></i>
+            <h3>{{ votes|length }}</h3>
+            <p>VOTES CAST</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <i class="fas fa-calendar-alt text-info"></i>
+            <h3>{{ current_user.created_at.strftime('%d %b %Y') }}</h3>
+            <p>MEMBER SINCE</p>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 class="section-heading"><i class="fas fa-tshirt"></i>Your Clothing Items</h2>
+            <a href="{{ url_for('recommend') }}" class="btn btn-primary btn-upload">
+                <i class="fas fa-plus me-2"></i>Upload New Item
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    {% if items %}
+        {% for item in items %}
+        <div class="col-md-4 col-lg-3 mb-4">
+            <div class="card h-100">
+                <div class="sustainability-score score-{{ item.sustainability_score|int }}">
+                    {{ item.sustainability_score }}
+                </div>
+                <img src="{{ url_for('static', filename=item.image_path|normalize_path) }}" class="card-img-top" alt="{{ item.name }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ item.name }}</h5>
+                    <div class="rating mb-2">
+                        {% set score = item.get_vote_score()|int %}
+                        {% for i in range(5) %}
+                            {% if i < score %}
+                            <i class="fas fa-star"></i>
+                            {% else %}
+                            <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                        <span class="text-muted ms-2">({{ item.votes.count() }})</span>
+                    </div>
+                    <p class="card-text small text-muted">
+                        <i class="far fa-calendar-alt me-1"></i> {{ item.created_at.strftime('%d %b %Y') }}
+                    </p>
+                    <a href="{{ url_for('item_details', item_id=item.id) }}" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-eye me-1"></i> View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="empty-state">
+                <i class="fas fa-tshirt text-primary"></i>
+                <h4>No Items Yet</h4>
+                <p>You haven't uploaded any clothing items yet. Start by uploading your first item to get personalized recommendations!</p>
+                <a href="{{ url_for('recommend') }}" class="btn btn-primary btn-upload">
+                    <i class="fas fa-plus me-2"></i>Upload Your First Item
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<h2 class="section-heading mt-5"><i class="fas fa-star"></i>Your Recent Votes</h2>
+<div class="row">
+    {% if votes %}
+        {% for vote in votes %}
+        <div class="col-md-6 mb-4">
+            <div class="votes-card">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <img src="{{ url_for('static', filename=vote.item.image_path|normalize_path) }}" class="img-fluid rounded-start" alt="{{ vote.item.name }}">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title d-flex align-items-center">
+                                {{ vote.item.name }}
+                                <span class="badge bg-secondary ms-2 score-{{ vote.item.sustainability_score|int }}">{{ vote.item.sustainability_score }}</span>
+                            </h5>
+                            <div class="rating mb-2">
+                                {% for i in range(5) %}
+                                    {% if i < vote.value %}
+                                    <i class="fas fa-star"></i>
+                                    {% else %}
+                                    <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            {% if vote.comment %}
+                            <div class="vote-comment">
+                                <i class="fas fa-quote-left me-2 small text-muted"></i>{{ vote.comment }}
+                            </div>
+                            {% endif %}
+                            <p class="card-text d-flex align-items-center">
+                                <small class="text-muted">
+                                    <i class="far fa-calendar-alt me-1"></i> {{ vote.created_at.strftime('%d %b %Y') }}
+                                </small>
+                            </p>
+                            <a href="{{ url_for('item_details', item_id=vote.item.id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye me-1"></i> View Item
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="empty-state">
+                <i class="fas fa-star text-info"></i>
+                <h4>No Votes Yet</h4>
+                <p>You haven't voted on any items yet. Explore our collection and start rating items to help others make sustainable choices!</p>
+                <a href="{{ url_for('items') }}" class="btn btn-primary btn-upload">
+                    <i class="fas fa-search me-2"></i>Browse Items
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

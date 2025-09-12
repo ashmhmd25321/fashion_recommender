@@ -131,9 +131,20 @@ jobs:
             fi
           fi
           
-          # Stop existing containers
+          # Stop existing containers and free ports
           echo "Stopping existing containers..."
           docker-compose down || echo "No existing containers to stop"
+          
+          # Kill any processes using our ports
+          echo "Freeing up ports 5001 and 8501..."
+          pkill -f "python.*app_simple.py" || echo "No Flask processes to kill"
+          pkill -f "streamlit.*main_simple.py" || echo "No Streamlit processes to kill"
+          fuser -k 5001/tcp || echo "Port 5001 already free"
+          fuser -k 8501/tcp || echo "Port 8501 already free"
+          
+          # Wait for ports to be free
+          echo "Waiting for ports to be free..."
+          sleep 5
           
           # Remove old images
           echo "Cleaning up old images..."

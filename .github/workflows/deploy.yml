@@ -135,6 +135,13 @@ jobs:
           echo "Installing Python dependencies..."
           pip install -r requirements.txt
           
+          # Test Flask app import
+          echo "Testing Flask app import..."
+          python -c "import app_simple; print('Flask app imports successfully')" || {
+            echo "ERROR: Flask app import failed"
+            exit 1
+          }
+          
           # Stop any existing systemd services first
           echo "Stopping existing systemd services..."
           systemctl stop fashion-flask.service || echo "Flask service not running"

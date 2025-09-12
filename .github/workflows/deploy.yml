@@ -140,13 +140,8 @@ jobs:
           systemctl stop fashion-flask.service || echo "Flask service not running"
           systemctl stop fashion-streamlit.service || echo "Streamlit service not running"
           
-          # Kill any remaining processes gently
-          echo "Stopping any remaining processes..."
-          pkill -f "app_simple.py" || echo "No Flask processes to kill"
-          pkill -f "main_simple.py" || echo "No Streamlit processes to kill"
-          
-          # Wait a moment for processes to stop
-          sleep 3
+          # Wait a moment for services to stop
+          sleep 2
           
           # Create systemd services
           echo "Creating systemd services..."

@@ -144,7 +144,7 @@ jobs:
           echo "Creating systemd services..."
           
           # Flask service
-          cat > /etc/systemd/system/fashion-flask.service << 'EOF'
+          tee /etc/systemd/system/fashion-flask.service > /dev/null << 'EOF'
 [Unit]
 Description=Fashion Recommendation Flask App
 After=network.target
@@ -163,7 +163,7 @@ WantedBy=multi-user.target
 EOF
 
           # Streamlit service
-          cat > /etc/systemd/system/fashion-streamlit.service << 'EOF'
+          tee /etc/systemd/system/fashion-streamlit.service > /dev/null << 'EOF'
 [Unit]
 Description=Fashion Recommendation Streamlit App
 After=network.target

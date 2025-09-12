@@ -174,7 +174,7 @@ jobs:
           echo "Environment=PATH=/opt/fashion-recommender/venv/bin" >> /etc/systemd/system/fashion-flask.service
           echo "Environment=FLASK_APP=app_simple.py" >> /etc/systemd/system/fashion-flask.service
           echo "Environment=FLASK_ENV=production" >> /etc/systemd/system/fashion-flask.service
-          echo "ExecStart=/opt/fashion-recommender/venv/bin/python -c \"import app_simple; app_simple.create_tables(); app_simple.app.run(host='0.0.0.0', port=5001, debug=False)\"" >> /etc/systemd/system/fashion-flask.service
+          echo "ExecStart=/opt/fashion-recommender/venv/bin/python app_simple.py" >> /etc/systemd/system/fashion-flask.service
           echo "Restart=always" >> /etc/systemd/system/fashion-flask.service
           echo "RestartSec=10" >> /etc/systemd/system/fashion-flask.service
           echo "" >> /etc/systemd/system/fashion-flask.service
@@ -228,9 +228,22 @@ jobs:
           
           # Check service logs for errors
           echo "Checking Flask service logs..."
-          journalctl -u fashion-flask.service --no-pager -n 20
+          journalctl -u fashion-flask.service --no-pager -n 50
           echo "Checking Streamlit service logs..."
-          journalctl -u fashion-streamlit.service --no-pager -n 20
+          journalctl -u fashion-streamlit.service --no-pager -n 50
+          
+          # Try to run Flask manually to see the error
+          echo "Trying to run Flask manually to debug..."
+          cd /opt/fashion-recommender
+          source venv/bin/activate
+          python -c "
+import app_simple
+print('Creating tables...')
+app_simple.create_tables()
+print('Tables created successfully')
+print('Starting Flask app...')
+app_simple.app.run(host='0.0.0.0', port=5001, debug=False)
+" || echo "Manual Flask run failed"
           
           # Test the application
           echo "Testing application health..."

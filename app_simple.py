@@ -755,4 +755,4 @@ def admin_rating_delete(vote_id):
 if __name__ == '__main__':
     # Create tables before running the app
     create_tables()
-    app.run(debug=True, port=5001)  # Use a different port than your Streamlit app 
+    app.run(host='0.0.0.0', debug=True, port=5001)  # Use a different port than your Streamlit app 

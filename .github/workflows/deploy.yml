@@ -76,20 +76,38 @@ jobs:
           
           echo "Starting deployment..."
           
+          # Update system and install required packages
+          echo "Updating system packages..."
+          apt update -y
+          apt install -y git curl wget docker.io docker-compose nginx || echo "Some packages may already be installed"
+          
+          # Start Docker service
+          echo "Starting Docker service..."
+          systemctl start docker || echo "Docker may already be running"
+          systemctl enable docker || echo "Docker may already be enabled"
+          
           # Navigate to project directory
-          cd /opt/fashion-recommender || {
-            echo "ERROR: Project directory not found. Creating it..."
+          if [ ! -d "/opt/fashion-recommender" ]; then
+            echo "Project directory not found. Creating it..."
             mkdir -p /opt/fashion-recommender
             cd /opt/fashion-recommender
             git clone https://github.com/ashmhmd25321/fashion_recommender.git .
-          }
-          
-          # Pull latest changes
-          echo "Pulling latest changes..."
-          git pull origin main || {
-            echo "ERROR: Failed to pull changes"
-            exit 1
-          }
+          else
+            cd /opt/fashion-recommender
+            if [ ! -d ".git" ]; then
+              echo "Git repository not found. Initializing..."
+              git init
+              git remote add origin https://github.com/ashmhmd25321/fashion_recommender.git
+              git fetch origin
+              git checkout -b main origin/main
+            else
+              echo "Pulling latest changes..."
+              git pull origin main || {
+                echo "ERROR: Failed to pull changes"
+                exit 1
+              }
+            fi
+          fi
           
           # Stop existing containers
           echo "Stopping existing containers..."

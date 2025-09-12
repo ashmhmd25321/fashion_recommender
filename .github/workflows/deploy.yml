@@ -36,6 +36,26 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
+    - name: Debug Secrets
+      run: |
+        echo "VPS_HOST: ${{ secrets.VPS_HOST }}"
+        echo "VPS_USERNAME: ${{ secrets.VPS_USERNAME }}"
+        echo "VPS_PORT: ${{ secrets.VPS_PORT }}"
+        echo "VPS_SSH_KEY length: ${#VPS_SSH_KEY}"
+        if [ -z "${{ secrets.VPS_HOST }}" ]; then
+          echo "ERROR: VPS_HOST is empty or not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.VPS_USERNAME }}" ]; then
+          echo "ERROR: VPS_USERNAME is empty or not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.VPS_SSH_KEY }}" ]; then
+          echo "ERROR: VPS_SSH_KEY is empty or not set"
+          exit 1
+        fi
+        echo "All secrets are properly set!"
+    
     - name: Deploy to VPS
       uses: appleboy/ssh-action@v1.0.3
       with:

@@ -232,11 +232,13 @@ jobs:
           echo "Checking Streamlit service logs..."
           journalctl -u fashion-streamlit.service --no-pager -n 50
           
-          # Test Flask app manually
-          echo "Testing Flask app manually..."
+          # Test Flask app manually with detailed error output
+          echo "Testing Flask app manually with detailed debugging..."
           cd /opt/fashion-recommender
           source venv/bin/activate
-          python -c "import app_simple; print('Flask app can be imported successfully')" || echo "Flask import test failed"
+          
+          echo "Running Flask debug script..."
+          python debug_flask.py || echo "Flask debug test failed"
           
           # Test the application
           echo "Testing application health..."

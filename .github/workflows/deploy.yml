@@ -72,19 +72,14 @@ jobs:
         timeout: 10m
         command_timeout: 10m
         script: |
-          set -e  # Exit on any error
+          set -e
           
           echo "Starting deployment..."
           
           # Update system and install required packages
-          echo "Updating system packages..."
+          echo "Installing system packages..."
           apt update -y
-          apt install -y git curl wget docker.io docker-compose nginx || echo "Some packages may already be installed"
-          
-          # Start Docker service
-          echo "Starting Docker service..."
-          systemctl start docker || echo "Docker may already be running"
-          systemctl enable docker || echo "Docker may already be enabled"
+          apt install -y git curl wget nginx python3 python3-pip python3-venv
           
           # Navigate to project directory
           if [ ! -d "/opt/fashion-recommender" ]; then
@@ -131,46 +126,81 @@ jobs:
             fi
           fi
           
-          # Stop existing containers and free ports
-          echo "Stopping existing containers..."
-          docker-compose down || echo "No existing containers to stop"
+          # Create virtual environment
+          echo "Setting up Python virtual environment..."
+          python3 -m venv venv
+          source venv/bin/activate
           
-          # Kill any processes using our ports
-          echo "Freeing up ports 5001 and 8501..."
+          # Install dependencies
+          echo "Installing Python dependencies..."
+          pip install -r requirements.txt
+          
+          # Kill any existing processes
+          echo "Stopping existing processes..."
           pkill -f "python.*app_simple.py" || echo "No Flask processes to kill"
           pkill -f "streamlit.*main_simple.py" || echo "No Streamlit processes to kill"
-          fuser -k 5001/tcp || echo "Port 5001 already free"
-          fuser -k 8501/tcp || echo "Port 8501 already free"
           
-          # Wait for ports to be free
-          echo "Waiting for ports to be free..."
-          sleep 5
+          # Create systemd services
+          echo "Creating systemd services..."
           
-          # Remove old images
-          echo "Cleaning up old images..."
-          docker image prune -f || echo "No images to prune"
+          # Flask service
+          cat > /etc/systemd/system/fashion-flask.service << 'EOF'
+[Unit]
+Description=Fashion Recommendation Flask App
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/fashion-recommender
+Environment=PATH=/opt/fashion-recommender/venv/bin
+ExecStart=/opt/fashion-recommender/venv/bin/python app_simple.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+          # Streamlit service
+          cat > /etc/systemd/system/fashion-streamlit.service << 'EOF'
+[Unit]
+Description=Fashion Recommendation Streamlit App
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/fashion-recommender
+Environment=PATH=/opt/fashion-recommender/venv/bin
+ExecStart=/opt/fashion-recommender/venv/bin/streamlit run main_simple.py --server.port=8501 --server.address=0.0.0.0
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+          # Reload systemd and start services
+          echo "Starting services..."
+          systemctl daemon-reload
+          systemctl enable fashion-flask.service
+          systemctl enable fashion-streamlit.service
+          systemctl start fashion-flask.service
+          systemctl start fashion-streamlit.service
           
-          # Build and start new containers
-          echo "Building and starting new containers..."
-          docker-compose up -d --build || {
-            echo "ERROR: Failed to start containers"
-            exit 1
-          }
-          
-          # Wait for services to be ready
+          # Wait for services to start
           echo "Waiting for services to start..."
-          sleep 30
+          sleep 15
           
-          # Check if services are running
-          echo "Checking container status..."
-          docker-compose ps
+          # Check service status
+          echo "Checking service status..."
+          systemctl status fashion-flask.service --no-pager
+          systemctl status fashion-streamlit.service --no-pager
           
           # Test the application
           echo "Testing application health..."
-          curl -f http://localhost:5001/health || {
-            echo "ERROR: Application health check failed"
-            docker-compose logs
-            exit 1
-          }
+          curl -f http://localhost:5001/health || echo "Flask health check failed"
+          curl -f http://localhost:8501 || echo "Streamlit health check failed"
           
           echo "Deployment completed successfully!"

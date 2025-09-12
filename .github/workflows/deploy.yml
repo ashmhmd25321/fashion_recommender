@@ -96,11 +96,18 @@ jobs:
             cd /opt/fashion-recommender
             if [ ! -d ".git" ]; then
               echo "Git repository not found. Initializing..."
-              git init
-              git remote add origin https://github.com/ashmhmd25321/fashion_recommender.git
-              git fetch origin
-              git checkout -b main origin/main
+              rm -rf * .* 2>/dev/null || true  # Clean directory
+              git clone https://github.com/ashmhmd25321/fashion_recommender.git .
             else
+              echo "Checking git status..."
+              git status || {
+                echo "Git repository corrupted. Re-cloning..."
+                cd ..
+                rm -rf fashion-recommender
+                mkdir -p fashion-recommender
+                cd fashion-recommender
+                git clone https://github.com/ashmhmd25321/fashion_recommender.git .
+              }
               echo "Pulling latest changes..."
               git pull origin main || {
                 echo "ERROR: Failed to pull changes"

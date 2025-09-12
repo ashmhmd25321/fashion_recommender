@@ -6,8 +6,10 @@ from sklearn.neighbors import NearestNeighbors
 
 class FashionRecommender:
     def __init__(self, embeddings_path='embeddings_simple.pkl', filenames_path='filenames_simple.pkl'):
-        self.embeddings_path = embeddings_path
-        self.filenames_path = filenames_path
+        # Get the directory where this script is located
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        self.embeddings_path = os.path.join(script_dir, embeddings_path)
+        self.filenames_path = os.path.join(script_dir, filenames_path)
         self.feature_list = None
         self.filenames = None
         self.load_data()

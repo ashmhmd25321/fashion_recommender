@@ -69,8 +69,8 @@ jobs:
         username: ${{ secrets.VPS_USERNAME }}
         key: ${{ secrets.VPS_SSH_KEY }}
         port: ${{ secrets.VPS_PORT }}
-        timeout: 10m
-        command_timeout: 10m
+        timeout: 20m
+        command_timeout: 20m
         script: |
           set -e
           
@@ -140,6 +140,9 @@ jobs:
           pkill -f "python.*app_simple.py" || echo "No Flask processes to kill"
           pkill -f "streamlit.*main_simple.py" || echo "No Streamlit processes to kill"
           
+          # Wait a moment for processes to stop
+          sleep 2
+          
           # Create systemd services
           echo "Creating systemd services..."
           
@@ -180,9 +183,12 @@ jobs:
           # Reload systemd and start services
           echo "Starting services..."
           systemctl daemon-reload
+          echo "Enabling services..."
           systemctl enable fashion-flask.service
           systemctl enable fashion-streamlit.service
+          echo "Starting Flask service..."
           systemctl start fashion-flask.service
+          echo "Starting Streamlit service..."
           systemctl start fashion-streamlit.service
           
           # Wait for services to start

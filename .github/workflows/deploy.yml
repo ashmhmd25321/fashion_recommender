@@ -159,9 +159,16 @@ jobs:
           echo "Stopping existing systemd services..."
           systemctl stop fashion-flask.service || echo "Flask service not running"
           systemctl stop fashion-streamlit.service || echo "Streamlit service not running"
-          
-          # Wait a moment for services to stop
-          sleep 2
+
+          # Kill any processes using our ports
+          echo "Killing processes on ports 5001 and 8501..."
+          pkill -f "python.*app_simple.py" || echo "No Flask processes to kill"
+          pkill -f "streamlit.*main_simple.py" || echo "No Streamlit processes to kill"
+          fuser -k 5001/tcp || echo "Port 5001 already free"
+          fuser -k 8501/tcp || echo "Port 8501 already free"
+
+          # Wait a moment for processes to stop
+          sleep 3
           
           # Create systemd services
           echo "Creating systemd services..."
@@ -243,7 +250,7 @@ jobs:
           
           # Test the application
           echo "Testing application health..."
-          curl -f http://localhost:5001/health || echo "Flask health check failed"
+          curl -f http://localhost:5002/health || echo "Flask health check failed"
           curl -f http://localhost:8501 || echo "Streamlit health check failed"
           
           echo "Deployment completed successfully!"

@@ -218,3 +218,4 @@ If you encounter any issues or have questions:
 **Made with ❤️ for sustainable fashion**
 # Automated Deployment Test - Fri Sep 12 18:31:40 +0530 2025
 # Testing GitHub Secrets - Fri Sep 12 18:38:22 +0530 2025
+# Testing RSA SSH key - Fri Sep 12 18:54:26 +0530 2025

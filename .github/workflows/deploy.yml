@@ -144,42 +144,38 @@ jobs:
           echo "Creating systemd services..."
           
           # Flask service
-          tee /etc/systemd/system/fashion-flask.service > /dev/null << 'EOF'
-[Unit]
-Description=Fashion Recommendation Flask App
-After=network.target
-
-[Service]
-Type=simple
-User=root
-WorkingDirectory=/opt/fashion-recommender
-Environment=PATH=/opt/fashion-recommender/venv/bin
-ExecStart=/opt/fashion-recommender/venv/bin/python app_simple.py
-Restart=always
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-EOF
+          echo "[Unit]" > /etc/systemd/system/fashion-flask.service
+          echo "Description=Fashion Recommendation Flask App" >> /etc/systemd/system/fashion-flask.service
+          echo "After=network.target" >> /etc/systemd/system/fashion-flask.service
+          echo "" >> /etc/systemd/system/fashion-flask.service
+          echo "[Service]" >> /etc/systemd/system/fashion-flask.service
+          echo "Type=simple" >> /etc/systemd/system/fashion-flask.service
+          echo "User=root" >> /etc/systemd/system/fashion-flask.service
+          echo "WorkingDirectory=/opt/fashion-recommender" >> /etc/systemd/system/fashion-flask.service
+          echo "Environment=PATH=/opt/fashion-recommender/venv/bin" >> /etc/systemd/system/fashion-flask.service
+          echo "ExecStart=/opt/fashion-recommender/venv/bin/python app_simple.py" >> /etc/systemd/system/fashion-flask.service
+          echo "Restart=always" >> /etc/systemd/system/fashion-flask.service
+          echo "RestartSec=10" >> /etc/systemd/system/fashion-flask.service
+          echo "" >> /etc/systemd/system/fashion-flask.service
+          echo "[Install]" >> /etc/systemd/system/fashion-flask.service
+          echo "WantedBy=multi-user.target" >> /etc/systemd/system/fashion-flask.service
 
           # Streamlit service
-          tee /etc/systemd/system/fashion-streamlit.service > /dev/null << 'EOF'
-[Unit]
-Description=Fashion Recommendation Streamlit App
-After=network.target
-
-[Service]
-Type=simple
-User=root
-WorkingDirectory=/opt/fashion-recommender
-Environment=PATH=/opt/fashion-recommender/venv/bin
-ExecStart=/opt/fashion-recommender/venv/bin/streamlit run main_simple.py --server.port=8501 --server.address=0.0.0.0
-Restart=always
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-EOF
+          echo "[Unit]" > /etc/systemd/system/fashion-streamlit.service
+          echo "Description=Fashion Recommendation Streamlit App" >> /etc/systemd/system/fashion-streamlit.service
+          echo "After=network.target" >> /etc/systemd/system/fashion-streamlit.service
+          echo "" >> /etc/systemd/system/fashion-streamlit.service
+          echo "[Service]" >> /etc/systemd/system/fashion-streamlit.service
+          echo "Type=simple" >> /etc/systemd/system/fashion-streamlit.service
+          echo "User=root" >> /etc/systemd/system/fashion-streamlit.service
+          echo "WorkingDirectory=/opt/fashion-recommender" >> /etc/systemd/system/fashion-streamlit.service
+          echo "Environment=PATH=/opt/fashion-recommender/venv/bin" >> /etc/systemd/system/fashion-streamlit.service
+          echo "ExecStart=/opt/fashion-recommender/venv/bin/streamlit run main_simple.py --server.port=8501 --server.address=0.0.0.0" >> /etc/systemd/system/fashion-streamlit.service
+          echo "Restart=always" >> /etc/systemd/system/fashion-streamlit.service
+          echo "RestartSec=10" >> /etc/systemd/system/fashion-streamlit.service
+          echo "" >> /etc/systemd/system/fashion-streamlit.service
+          echo "[Install]" >> /etc/systemd/system/fashion-streamlit.service
+          echo "WantedBy=multi-user.target" >> /etc/systemd/system/fashion-streamlit.service
 
           # Reload systemd and start services
           echo "Starting services..."

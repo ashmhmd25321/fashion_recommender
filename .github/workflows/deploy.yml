@@ -135,13 +135,18 @@ jobs:
           echo "Installing Python dependencies..."
           pip install -r requirements.txt
           
-          # Kill any existing processes
-          echo "Stopping existing processes..."
-          pkill -f "python.*app_simple.py" || echo "No Flask processes to kill"
-          pkill -f "streamlit.*main_simple.py" || echo "No Streamlit processes to kill"
+          # Stop any existing systemd services first
+          echo "Stopping existing systemd services..."
+          systemctl stop fashion-flask.service || echo "Flask service not running"
+          systemctl stop fashion-streamlit.service || echo "Streamlit service not running"
+          
+          # Kill any remaining processes gently
+          echo "Stopping any remaining processes..."
+          pkill -f "app_simple.py" || echo "No Flask processes to kill"
+          pkill -f "main_simple.py" || echo "No Streamlit processes to kill"
           
           # Wait a moment for processes to stop
-          sleep 2
+          sleep 3
           
           # Create systemd services
           echo "Creating systemd services..."
@@ -187,9 +192,17 @@ jobs:
           systemctl enable fashion-flask.service
           systemctl enable fashion-streamlit.service
           echo "Starting Flask service..."
-          systemctl start fashion-flask.service
+          systemctl start fashion-flask.service || {
+            echo "ERROR: Failed to start Flask service"
+            systemctl status fashion-flask.service --no-pager
+            exit 1
+          }
           echo "Starting Streamlit service..."
-          systemctl start fashion-streamlit.service
+          systemctl start fashion-streamlit.service || {
+            echo "ERROR: Failed to start Streamlit service"
+            systemctl status fashion-streamlit.service --no-pager
+            exit 1
+          }
           
           # Wait for services to start
           echo "Waiting for services to start..."

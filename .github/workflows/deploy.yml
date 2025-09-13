@@ -79,7 +79,7 @@ jobs:
           # Update system and install required packages
           echo "Installing system packages..."
           apt update -y
-          apt install -y git curl wget nginx python3 python3-pip python3-venv
+          apt install -y git curl wget nginx python3 python3-pip python3-venv certbot python3-certbot-nginx ufw
           
           # Navigate to project directory
           if [ ! -d "/opt/fashion-recommender" ]; then
@@ -179,6 +179,114 @@ jobs:
           # Wait a moment for systemd to stop services
           sleep 3
           
+          # Configure Nginx (safely without affecting other projects)
+          echo "Configuring Nginx for fashion.dreamware.lk..."
+          
+          # Backup existing Nginx configuration if it exists
+          if [ -f "/etc/nginx/sites-available/fashion.dreamware.lk" ]; then
+            echo "Backing up existing fashion.dreamware.lk configuration..."
+            cp /etc/nginx/sites-available/fashion.dreamware.lk /etc/nginx/sites-available/fashion.dreamware.lk.backup.$(date +%Y%m%d_%H%M%S)
+          fi
+          
+          # Copy Nginx configuration
+          cp nginx_fashion.conf /etc/nginx/sites-available/fashion.dreamware.lk
+          ln -sf /etc/nginx/sites-available/fashion.dreamware.lk /etc/nginx/sites-enabled/
+          
+          # Only remove default Nginx site if it exists and is the default one
+          if [ -f "/etc/nginx/sites-enabled/default" ]; then
+            echo "Removing default Nginx site..."
+            rm -f /etc/nginx/sites-enabled/default
+          else
+            echo "No default Nginx site found, keeping existing configuration"
+          fi
+          
+          # Test Nginx configuration
+          nginx -t || {
+            echo "ERROR: Nginx configuration test failed"
+            echo "Rolling back Nginx configuration..."
+            rm -f /etc/nginx/sites-enabled/fashion.dreamware.lk
+            if [ -f "/etc/nginx/sites-available/fashion.dreamware.lk.backup.$(date +%Y%m%d_%H%M%S)" ]; then
+              echo "Restoring previous configuration..."
+              # Find the most recent backup
+              LATEST_BACKUP=$(ls -t /etc/nginx/sites-available/fashion.dreamware.lk.backup.* 2>/dev/null | head -1)
+              if [ ! -z "$LATEST_BACKUP" ]; then
+                cp "$LATEST_BACKUP" /etc/nginx/sites-available/fashion.dreamware.lk
+                ln -sf /etc/nginx/sites-available/fashion.dreamware.lk /etc/nginx/sites-enabled/
+                nginx -t && systemctl reload nginx
+              fi
+            fi
+            exit 1
+          }
+          
+          # Configure firewall (only add rules, don't enable if already configured)
+          echo "Configuring firewall rules..."
+          # Check if UFW is already enabled
+          if ! ufw status | grep -q "Status: active"; then
+            echo "UFW not active, enabling with basic rules..."
+            ufw --force enable
+            ufw allow ssh
+            ufw allow 80
+            ufw allow 443
+          else
+            echo "UFW already active, only adding necessary rules..."
+            ufw allow 80 2>/dev/null || echo "Port 80 rule already exists"
+            ufw allow 443 2>/dev/null || echo "Port 443 rule already exists"
+          fi
+          
+          # Block direct access to internal ports (only if not already blocked)
+          ufw deny 5002 2>/dev/null || echo "Port 5002 already blocked"
+          ufw deny 8501 2>/dev/null || echo "Port 8501 already blocked"
+          
+          # Start Nginx (only if not already running)
+          if ! systemctl is-active --quiet nginx; then
+            echo "Starting Nginx..."
+            systemctl start nginx
+          else
+            echo "Nginx already running, reloading configuration..."
+            systemctl reload nginx
+          fi
+          
+          # Enable Nginx (only if not already enabled)
+          if ! systemctl is-enabled --quiet nginx; then
+            systemctl enable nginx
+          fi
+          
+          # Set up SSL certificate with Let's Encrypt
+          echo "Setting up SSL certificate..."
+          if [ ! -f "/etc/letsencrypt/live/fashion.dreamware.lk/fullchain.pem" ]; then
+            echo "Obtaining SSL certificate..."
+            certbot --nginx -d fashion.dreamware.lk -d www.fashion.dreamware.lk --non-interactive --agree-tos --email admin@dreamware.lk --redirect || {
+              echo "WARNING: SSL certificate setup failed. Continuing with HTTP only."
+              # Create a temporary HTTP-only config
+              cat > /etc/nginx/sites-available/fashion.dreamware.lk << 'EOF'
+server {
+    listen 80;
+    server_name fashion.dreamware.lk www.fashion.dreamware.lk;
+    
+    location / {
+        proxy_pass http://127.0.0.1:5002;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    
+    location /streamlit/ {
+        proxy_pass http://127.0.0.1:8501/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+EOF
+              nginx -t && systemctl reload nginx
+            }
+          else
+            echo "SSL certificate already exists"
+            systemctl reload nginx
+          fi
+          
           # Create systemd services
           echo "Creating systemd services..."
           
@@ -261,7 +369,13 @@ jobs:
           
           # Test the application
           echo "Testing application health..."
-          curl -f http://localhost:5002/health || echo "Flask health check failed"
-          curl -f http://localhost:8501 || echo "Streamlit health check failed"
+          curl -f http://fashion.dreamware.lk/health || echo "Flask health check failed"
+          curl -f http://fashion.dreamware.lk/streamlit/ || echo "Streamlit health check failed"
+          
+          # Test HTTPS if SSL is configured
+          if [ -f "/etc/letsencrypt/live/fashion.dreamware.lk/fullchain.pem" ]; then
+            echo "Testing HTTPS..."
+            curl -f https://fashion.dreamware.lk/health || echo "HTTPS health check failed"
+          fi
           
           echo "Deployment completed successfully!"

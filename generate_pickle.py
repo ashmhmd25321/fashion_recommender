@@ -46,3 +46,4 @@ else:
     
     with open('filenames_simple.pkl', 'wb') as f:
         pickle.dump([], f)
+

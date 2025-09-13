@@ -190,28 +190,26 @@ jobs:
           
           # Create initial HTTP-only Nginx configuration first
           echo "Creating initial HTTP-only Nginx configuration..."
-          cat > /etc/nginx/sites-available/fashion.dreamware.lk << 'EOF'
-server {
-    listen 80;
-    server_name fashion.dreamware.lk www.fashion.dreamware.lk;
-    
-    location / {
-        proxy_pass http://127.0.0.1:5002;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-    
-    location /streamlit/ {
-        proxy_pass http://127.0.0.1:8501/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-EOF
+          echo "server {" > /etc/nginx/sites-available/fashion.dreamware.lk
+          echo "    listen 80;" >> /etc/nginx/sites-available/fashion.dreamware.lk
+          echo "    server_name fashion.dreamware.lk www.fashion.dreamware.lk;" >> /etc/nginx/sites-available/fashion.dreamware.lk
+          echo "    " >> /etc/nginx/sites-available/fashion.dreamware.lk
+          echo "    location / {" >> /etc/nginx/sites-available/fashion.dreamware.lk
+          echo "        proxy_pass http://127.0.0.1:5002;" >> /etc/nginx/sites-available/fashion.dreamware.lk
+          echo "        proxy_set_header Host \$host;" >> /etc/nginx/sites-available/fashion.dreamware.lk
+          echo "        proxy_set_header X-Real-IP \$remote_addr;" >> /etc/nginx/sites-available/fashion.dreamware.lk
+          echo "        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;" >> /etc/nginx/sites-available/fashion.dreamware.lk
+          echo "        proxy_set_header X-Forwarded-Proto \$scheme;" >> /etc/nginx/sites-available/fashion.dreamware.lk
+          echo "    }" >> /etc/nginx/sites-available/fashion.dreamware.lk
+          echo "    " >> /etc/nginx/sites-available/fashion.dreamware.lk
+          echo "    location /streamlit/ {" >> /etc/nginx/sites-available/fashion.dreamware.lk
+          echo "        proxy_pass http://127.0.0.1:8501/;" >> /etc/nginx/sites-available/fashion.dreamware.lk
+          echo "        proxy_set_header Host \$host;" >> /etc/nginx/sites-available/fashion.dreamware.lk
+          echo "        proxy_set_header X-Real-IP \$remote_addr;" >> /etc/nginx/sites-available/fashion.dreamware.lk
+          echo "        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;" >> /etc/nginx/sites-available/fashion.dreamware.lk
+          echo "        proxy_set_header X-Forwarded-Proto \$scheme;" >> /etc/nginx/sites-available/fashion.dreamware.lk
+          echo "    }" >> /etc/nginx/sites-available/fashion.dreamware.lk
+          echo "}" >> /etc/nginx/sites-available/fashion.dreamware.lk
           ln -sf /etc/nginx/sites-available/fashion.dreamware.lk /etc/nginx/sites-enabled/
           
           # Only remove default Nginx site if it exists and is the default one
